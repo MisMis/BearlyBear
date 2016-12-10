@@ -9,6 +9,7 @@ struct wlasciwosci_pola {
 	int  npc;
 	int  przejscie_mapy;
 	int npc_id;
+	bool przyszle_poz_npc;
 };
 struct dane_npc {
 	int npc_id;
@@ -21,8 +22,7 @@ struct dane_npc {
 	int maxy;
 	int minx;
 	int miny;
-	int stara_poz_x;
-	int stara_poz_y;
+	clock_t czas;
 };
 typedef struct wlasciwosci_pola wlasciwosci_pola_t;
 typedef struct dane_npc dane_npc_t;
@@ -57,6 +57,7 @@ int main() {
 	int mapax = 0;
 	int mapay = 0;
 	int tmp;
+	int przerwa_miedzy_przejsciami_npc=3;
 	int zasiegnpc = 3;
 	int bohaterx = 350;
 	int bohatery = 350;
@@ -145,6 +146,7 @@ int main() {
 		x = 1;
 		for (i = 0; i < wysokosc; i++) {
 			for (j = 0; j < szerokosc; j++) {
+				mapadane[i][j].przyszle_poz_npc = false; //zerowanie przyszlych poz npc potrzebnych do kolizji z npc;
 				if (mapadane[i][j].npc == 0) {
 					mapadane[i][j].npc_id = 0;
 				}
@@ -163,6 +165,7 @@ int main() {
 					dane_do_ruchu_npc[tmp].miny = i-zasiegnpc;
 					dane_do_ruchu_npc[tmp].maxy = i+zasiegnpc;
 					dane_do_ruchu_npc[tmp].npc_id = mapadane[i][j].npc - 1;
+					dane_do_ruchu_npc[tmp].czas = clock();
 				}
 			}
 		}
@@ -232,22 +235,22 @@ int main() {
 			aktualna_pozycjax = (mapax - bohaterx)*-1/misjednostka;
 			aktualna_pozycjay = (mapay - bohatery)*-1/misjednostka;
 				if (ydocelowe == mapay && przyciski[0] == true && aktualna_pozycjay > yspawnu) {
-					if (mapadane[aktualna_pozycjay - 1][aktualna_pozycjax].przeszkoda == false && mapadane[aktualna_pozycjay - 1][aktualna_pozycjax].npc_id==0) {
+					if (mapadane[aktualna_pozycjay - 1][aktualna_pozycjax].przeszkoda == false && mapadane[aktualna_pozycjay - 1][aktualna_pozycjax].npc_id==0 && mapadane[aktualna_pozycjay - 1][aktualna_pozycjax].przyszle_poz_npc == false) {
 						ydocelowe += misjednostka;
 					}
 				}
 				if (ydocelowe == mapay && przyciski[1] == true && aktualna_pozycjay < wysokosc) {
-					if (mapadane[aktualna_pozycjay + 1][aktualna_pozycjax].przeszkoda == false && mapadane[aktualna_pozycjay + 1][aktualna_pozycjax].npc_id==0) {
+					if (mapadane[aktualna_pozycjay + 1][aktualna_pozycjax].przeszkoda == false && mapadane[aktualna_pozycjay + 1][aktualna_pozycjax].npc_id==0 && mapadane[aktualna_pozycjay + 1][aktualna_pozycjax].przyszle_poz_npc == false) {
 						ydocelowe -= misjednostka;
 					}
 				}
 				if (xdocelowe == mapax && przyciski[2] == true && aktualna_pozycjax > xspawnu) {
-					if (mapadane[aktualna_pozycjay][aktualna_pozycjax - 1].przeszkoda == false && mapadane[aktualna_pozycjay][aktualna_pozycjax - 1].npc_id==0) {
+					if (mapadane[aktualna_pozycjay][aktualna_pozycjax - 1].przeszkoda == false && mapadane[aktualna_pozycjay][aktualna_pozycjax - 1].npc_id==0&& mapadane[aktualna_pozycjay][aktualna_pozycjax-1].przyszle_poz_npc == false) {
 						xdocelowe += misjednostka;
 					}
 				}
 				if (xdocelowe == mapax && przyciski[3] == true && aktualna_pozycjax < szerokosc) {
-					if (mapadane[aktualna_pozycjay][aktualna_pozycjax + 1].przeszkoda == false && mapadane[aktualna_pozycjay][aktualna_pozycjax + 1].npc_id==0) {
+					if (mapadane[aktualna_pozycjay][aktualna_pozycjax + 1].przeszkoda == false && mapadane[aktualna_pozycjay][aktualna_pozycjax + 1].npc_id==0 && mapadane[aktualna_pozycjay][aktualna_pozycjax+1].przyszle_poz_npc == false) {
 						xdocelowe -= misjednostka;
 					}
 				}
@@ -282,72 +285,90 @@ int main() {
 			al_draw_bitmap(mapa, mapax, mapay, 0);
 			xszukania = (mapax / 50)*-1;
 			yszukania = (mapay / 50)*-1;
-			for (i =yszukania; i <yszukania+szerszukania; i++) {
-				for (j = xszukania; j < xszukania + szerszukania; j++) {
-					if (i >= yspawnu && j >= xspawnu && j < szerokosc &&i < wysokosc) {
-						if (mapadane[i][j].npc_id != 0) {
-							tmp = mapadane[i][j].npc_id - 1;
-							al_draw_bitmap(NPC[dane_do_ruchu_npc[tmp].npc_id], dane_do_ruchu_npc[tmp].pozx*-1 + mapax, dane_do_ruchu_npc[tmp].pozy*-1 + mapay, 0);
-							if (dane_do_ruchu_npc[tmp].pozx == dane_do_ruchu_npc[tmp].poz_docelowa_x && dane_do_ruchu_npc[tmp].pozy == dane_do_ruchu_npc[tmp].poz_docelowa_y) {
-								if (dane_do_ruchu_npc[tmp].pozx / misjednostka*-1 != j || dane_do_ruchu_npc[tmp].pozy / misjednostka*-1 != i) {
-									x=mapadane[dane_do_ruchu_npc[tmp].pozy / misjednostka*-1][dane_do_ruchu_npc[tmp].pozx / misjednostka*-1].npc_id;
-									mapadane[dane_do_ruchu_npc[tmp].pozy / misjednostka*-1][dane_do_ruchu_npc[tmp].pozx / misjednostka*-1].npc_id = mapadane[i][j].npc_id;
-									mapadane[i][j].npc_id= x;
+			if (ilosc_npc > 0) {
+				for (i = yszukania; i < yszukania + szerszukania; i++) {
+					for (j = xszukania; j < xszukania + szerszukania; j++) {
+						if (i >= yspawnu && j >= xspawnu && j < szerokosc &&i < wysokosc) {
+							if (mapadane[i][j].npc_id != 0) {
+								tmp = mapadane[i][j].npc_id - 1;
+								al_draw_bitmap(NPC[dane_do_ruchu_npc[tmp].npc_id], dane_do_ruchu_npc[tmp].pozx*-1 + mapax, dane_do_ruchu_npc[tmp].pozy*-1 + mapay, 0);
+								if (dane_do_ruchu_npc[tmp].pozx == dane_do_ruchu_npc[tmp].poz_docelowa_x && dane_do_ruchu_npc[tmp].pozy == dane_do_ruchu_npc[tmp].poz_docelowa_y) {
+									if (dane_do_ruchu_npc[tmp].pozx / misjednostka*-1 != j || dane_do_ruchu_npc[tmp].pozy / misjednostka*-1 != i) {
+										x = mapadane[dane_do_ruchu_npc[tmp].pozy / misjednostka*-1][dane_do_ruchu_npc[tmp].pozx / misjednostka*-1].npc_id;
+										mapadane[dane_do_ruchu_npc[tmp].pozy / misjednostka*-1][dane_do_ruchu_npc[tmp].pozx / misjednostka*-1].npc_id = mapadane[i][j].npc_id;
+										mapadane[i][j].npc_id = x;
+									}
+									x = rand() % 4;
+									aktualna_poz_npc_x = dane_do_ruchu_npc[tmp].pozx / misjednostka*-1;
+									aktualna_poz_npc_y = dane_do_ruchu_npc[tmp].pozy / misjednostka*-1;
+									if (dane_do_ruchu_npc[tmp].pozx == dane_do_ruchu_npc[tmp].poz_docelowa_x || dane_do_ruchu_npc[tmp].pozy == dane_do_ruchu_npc[tmp].poz_docelowa_y){
+										mapadane[dane_do_ruchu_npc[tmp].poz_docelowa_y / misjednostka*-1][dane_do_ruchu_npc[tmp].poz_docelowa_x / misjednostka*-1].przyszle_poz_npc = false;
 								}
-								x = rand() % 4;
-								aktualna_poz_npc_x = dane_do_ruchu_npc[tmp].pozx / misjednostka*-1;
-								aktualna_poz_npc_y = dane_do_ruchu_npc[tmp].pozy / misjednostka*-1;
-								switch (x) {
-									//ruch npc w lewo
-								case 0:
-									if (aktualna_poz_npc_x > xspawnu && aktualna_poz_npc_x >dane_do_ruchu_npc[tmp].minx){
-										if (mapadane[aktualna_poz_npc_y][aktualna_poz_npc_x - 1].przeszkoda == false && mapadane[aktualna_poz_npc_y][aktualna_poz_npc_x - 1].npc_id == 0 && (aktualna_pozycjax != aktualna_poz_npc_x - 1 || aktualna_pozycjay != aktualna_poz_npc_y)) {
-											dane_do_ruchu_npc[tmp].poz_docelowa_x += misjednostka;
+									switch (x) {
+										//ruch npc w lewo
+									case 0:
+										if (((float)clock() - dane_do_ruchu_npc[tmp].czas) / CLOCKS_PER_SEC> przerwa_miedzy_przejsciami_npc) {
+											if (aktualna_poz_npc_x > xspawnu && aktualna_poz_npc_x > dane_do_ruchu_npc[tmp].minx) {
+												if (mapadane[aktualna_poz_npc_y][aktualna_poz_npc_x - 1].przeszkoda == false && mapadane[aktualna_poz_npc_y][aktualna_poz_npc_x - 1].przyszle_poz_npc == false && mapadane[aktualna_poz_npc_y][aktualna_poz_npc_x - 1].npc_id == 0 && (aktualna_pozycjax != aktualna_poz_npc_x - 1 || aktualna_pozycjay != aktualna_poz_npc_y)) {
+													dane_do_ruchu_npc[tmp].poz_docelowa_x += misjednostka;
+													dane_do_ruchu_npc[tmp].czas = clock();
+												}
+											}
+										}
+										break;
+										//ruch npc w prawo
+									case 1:
+										if (((float)clock() - dane_do_ruchu_npc[tmp].czas) / CLOCKS_PER_SEC> przerwa_miedzy_przejsciami_npc) {
+											if (aktualna_poz_npc_x < szerokosc && aktualna_poz_npc_x < dane_do_ruchu_npc[tmp].maxx) {
+												if (mapadane[aktualna_poz_npc_y][aktualna_poz_npc_x + 1].przeszkoda == false && mapadane[aktualna_poz_npc_y][aktualna_poz_npc_x + 1].przyszle_poz_npc == false && mapadane[aktualna_poz_npc_y][aktualna_poz_npc_x + 1].npc_id == 0 && (aktualna_pozycjax != aktualna_poz_npc_x + 1 || aktualna_pozycjay != aktualna_poz_npc_y)) {
+													dane_do_ruchu_npc[tmp].poz_docelowa_x -= misjednostka;
+													dane_do_ruchu_npc[tmp].czas = clock();
+												}
+											}
+										}
+										break;
+										//ruch npc w gore
+									case 2:
+										if (((float)clock() - dane_do_ruchu_npc[tmp].czas) / CLOCKS_PER_SEC > przerwa_miedzy_przejsciami_npc) {
+											if (aktualna_poz_npc_y > yspawnu&& aktualna_poz_npc_y > dane_do_ruchu_npc[tmp].miny) {
+												if (mapadane[aktualna_poz_npc_y - 1][aktualna_poz_npc_x].przeszkoda == false && mapadane[aktualna_poz_npc_y - 1][aktualna_poz_npc_x].przyszle_poz_npc == false && mapadane[aktualna_poz_npc_y - 1][aktualna_poz_npc_x].npc_id == 0 && (aktualna_pozycjax != aktualna_poz_npc_x || aktualna_pozycjay != aktualna_poz_npc_y - 1)) {
+													dane_do_ruchu_npc[tmp].poz_docelowa_y += misjednostka;
+													dane_do_ruchu_npc[tmp].czas = clock();
+
+												}
+											}
+										}
+										break;
+										//ruch npc w dol
+									case 3:
+										if (((float)clock() - dane_do_ruchu_npc[tmp].czas) / CLOCKS_PER_SEC > przerwa_miedzy_przejsciami_npc) {
+											if (aktualna_poz_npc_y < wysokosc && aktualna_poz_npc_y < dane_do_ruchu_npc[tmp].maxy) {
+												if (mapadane[aktualna_poz_npc_y + 1][aktualna_poz_npc_x].przeszkoda == false && mapadane[aktualna_poz_npc_y + 1][aktualna_poz_npc_x].przyszle_poz_npc == false && mapadane[aktualna_poz_npc_y + 1][aktualna_poz_npc_x].npc_id == 0 && (aktualna_pozycjax != aktualna_poz_npc_x || aktualna_pozycjay != aktualna_poz_npc_y + 1)) {
+													dane_do_ruchu_npc[tmp].poz_docelowa_y -= misjednostka;
+													dane_do_ruchu_npc[tmp].czas = clock();
+												}
+											}
+										}
+										break;
 
 										}
-									}
-									break;
-									//ruch npc w prawo
-								case 1:
-									if (aktualna_poz_npc_x  < szerokosc && aktualna_poz_npc_x<dane_do_ruchu_npc[tmp].maxx) {
-										if (mapadane[aktualna_poz_npc_y][aktualna_poz_npc_x + 1].przeszkoda == false && mapadane[aktualna_poz_npc_y][aktualna_poz_npc_x + 1].npc_id==0 && (aktualna_pozycjax != aktualna_poz_npc_x + 1 || aktualna_pozycjay != aktualna_poz_npc_y)) {
-											dane_do_ruchu_npc[tmp].poz_docelowa_x -= misjednostka;
-										}
-									}
-									break;
-									//ruch npc w gore
-								case 2:
-									if (aktualna_poz_npc_y > yspawnu&& aktualna_poz_npc_y>dane_do_ruchu_npc[tmp].miny) {
-										if (mapadane[aktualna_poz_npc_y - 1][aktualna_poz_npc_x].przeszkoda == false && mapadane[aktualna_poz_npc_y - 1][aktualna_poz_npc_x].npc_id==0 && (aktualna_pozycjax != aktualna_poz_npc_x || aktualna_pozycjay != aktualna_poz_npc_y-1)) {
-											dane_do_ruchu_npc[tmp].poz_docelowa_y += misjednostka;
-										
-										}
-									}
-									break;
-									//ruch npc w dol
-								case 3:
-									if (aktualna_poz_npc_y < wysokosc && aktualna_poz_npc_y<dane_do_ruchu_npc[tmp].maxy) {
-										if (mapadane[aktualna_poz_npc_y + 1][aktualna_poz_npc_x].przeszkoda == false && mapadane[aktualna_poz_npc_y + 1][aktualna_poz_npc_x].npc_id==0 && (aktualna_pozycjax != aktualna_poz_npc_x || aktualna_pozycjay != aktualna_poz_npc_y+1)) {
-											dane_do_ruchu_npc[tmp].poz_docelowa_y -= misjednostka;
-										
-										}
-									}
-									break;
-
 								}
-							}
-							if (zdarzenie.type == ALLEGRO_EVENT_TIMER) {
-								if (dane_do_ruchu_npc[tmp].pozx < dane_do_ruchu_npc[tmp].poz_docelowa_x) {
-									dane_do_ruchu_npc[tmp].pozx += 1;
+								if (dane_do_ruchu_npc[tmp].pozx != dane_do_ruchu_npc[tmp].poz_docelowa_x || dane_do_ruchu_npc[tmp].pozy != dane_do_ruchu_npc[tmp].poz_docelowa_y) {
+									mapadane[dane_do_ruchu_npc[tmp].poz_docelowa_y / misjednostka*-1][dane_do_ruchu_npc[tmp].poz_docelowa_x / misjednostka*-1].przyszle_poz_npc = true;
 								}
-								if (dane_do_ruchu_npc[tmp].pozx > dane_do_ruchu_npc[tmp].poz_docelowa_x) {
-									dane_do_ruchu_npc[tmp].pozx -= 1;
-								}
-								if (dane_do_ruchu_npc[tmp].pozy < dane_do_ruchu_npc[tmp].poz_docelowa_y) {
-									dane_do_ruchu_npc[tmp].pozy += 1;
-								}
-								if (dane_do_ruchu_npc[tmp].pozy > dane_do_ruchu_npc[tmp].poz_docelowa_y) {
-									dane_do_ruchu_npc[tmp].pozy -= 1;
+								if (zdarzenie.type == ALLEGRO_EVENT_TIMER) {
+									if (dane_do_ruchu_npc[tmp].pozx < dane_do_ruchu_npc[tmp].poz_docelowa_x) {
+										dane_do_ruchu_npc[tmp].pozx += 1;
+									}
+									if (dane_do_ruchu_npc[tmp].pozx > dane_do_ruchu_npc[tmp].poz_docelowa_x) {
+										dane_do_ruchu_npc[tmp].pozx -= 1;
+									}
+									if (dane_do_ruchu_npc[tmp].pozy < dane_do_ruchu_npc[tmp].poz_docelowa_y) {
+										dane_do_ruchu_npc[tmp].pozy += 1;
+									}
+									if (dane_do_ruchu_npc[tmp].pozy > dane_do_ruchu_npc[tmp].poz_docelowa_y) {
+										dane_do_ruchu_npc[tmp].pozy -= 1;
+									}
 								}
 							}
 						}
