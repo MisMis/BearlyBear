@@ -3,7 +3,10 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
+#include <allegro5\allegro_font.h>
+#include <allegro5\\allegro_ttf.h>
 struct wlasciwosci_pola {
 	bool przeszkoda;
 	int  npc;
@@ -24,8 +27,20 @@ struct dane_npc {
 	int miny;
 	clock_t czas;
 };
+struct przedmiot {
+	int typ;
+	char nazwa[20];
+	char opis[50];
+};
+struct typy_przedmiotow {
+	char nazwa[20];
+	int x;
+	int y;
+};
 typedef struct wlasciwosci_pola wlasciwosci_pola_t;
 typedef struct dane_npc dane_npc_t;
+typedef struct przedmiot przedmiot_t;
+typedef struct typy_przedmiotow typy_przedmiotow_t;
 void wczytanie_z_pliku(FILE *wyjscie, wlasciwosci_pola_t **dane, int wysokosc, int szerokosc) {
 	int i, j;
 	int pomoc[3];
@@ -42,16 +57,44 @@ void wczytanie_z_pliku(FILE *wyjscie, wlasciwosci_pola_t **dane, int wysokosc, i
 }
 void czytanie_nazw(char *nazwy[][2]) {
 
-	nazwy[0][0] ="miasto.png";
-	nazwy[0][1] ="mapa.leafe";
-	nazwy[1][0] ="wnetrze.png";
-	nazwy[1][1] ="wnetrze.leafe";
+	nazwy[0][0] = "miasto.png";
+	nazwy[0][1] = "mapa.leafe";
+	nazwy[1][0] = "wnetrze.png";
+	nazwy[1][1] = "wnetrze.leafe";
 
 }
+void ladowanie_opisow_przedmiotow(przedmiot_t *tablica);
+void ladowanie_typow_przedmiotow(typy_przedmiotow_t *tablica);
 void czytanie_nazw_npc(char **nazwy) {
 	nazwy[0] = "przykladowynpc1.png";
 	nazwy[1] = "przykladowynpc2.png";
-
+}
+bool dodaj_przedmiot_do_ekwipunku(int ekwipunek[][3], int id_przedmiotu) {
+	int i, j;
+	for(i=0;i<5;i++){
+		for (j = 0; j < 3; j++) {
+			if (ekwipunek[i][j] == 0) {
+				ekwipunek[i][j] = id_przedmiotu;
+				return true;
+			}
+		}
+	}
+	return false;
+}
+void zalozenie_przedmiotu(int* zalozone_przedmioty, int przedmioty_w_ekwipunku[][3],przedmiot_t *tablica,int pozx,int pozy) {
+	int tmp;
+	if (przedmioty_w_ekwipunku[pozy][pozx]!= 0) {
+		if (zalozone_przedmioty[tablica[przedmioty_w_ekwipunku[pozy][pozx] - 1].typ - 1] == 0) {
+			zalozone_przedmioty[tablica[przedmioty_w_ekwipunku[pozy][pozx] - 1].typ - 1] = przedmioty_w_ekwipunku[pozy][pozx];
+			przedmioty_w_ekwipunku[pozy][pozx] = 0;
+		}
+		else
+		{
+			tmp = zalozone_przedmioty[tablica[przedmioty_w_ekwipunku[pozy][pozx] - 1].typ - 1];
+			zalozone_przedmioty[tablica[przedmioty_w_ekwipunku[pozy][pozx] - 1].typ - 1] = przedmioty_w_ekwipunku[pozy][pozx];
+			przedmioty_w_ekwipunku[pozy][pozx] = tmp;
+		}
+	}
 }
 int main() {
 	int mapax = 0;
@@ -61,6 +104,7 @@ int main() {
 	int zasiegnpc = 3;
 	int bohaterx = 350;
 	int bohatery = 350;
+	int x_ramki = 0, y_ramki = 0;
 	int misjednostka = 50;
 	int pozdocelowa = 350;
 	int xdocelowe = mapax;
@@ -68,6 +112,9 @@ int main() {
 	int wysokosc, szerokosc,i,j,x;
 	int aktualna_pozycjax;
 	int aktualna_pozycjay;
+	int przedmioty_w_ekwipunku[5][3];
+	int przedmioty_zalozone[6];
+	int zdrowie = 100;
 	int ilosc_npc,ilosc_rysowanych_npc;
 	int aktualna_poz_npc_x, aktualna_poz_npc_y;
 	int numerbitmapy=0;
@@ -80,27 +127,60 @@ int main() {
 	bool zmianamapy=false;
 	bool czy_ekwipunek = false;
 	bool przemieszczenie = false;
+	bool ruch =true;
 	al_init();
 	ALLEGRO_DISPLAY *okno = NULL;
 	ALLEGRO_TIMER *timer = NULL;
 	ALLEGRO_EVENT_QUEUE *kolejka = NULL;
 	ALLEGRO_BITMAP *bohater = NULL;
 	ALLEGRO_BITMAP *ekwipunek = NULL;
+	ALLEGRO_BITMAP *serce = NULL;
+	ALLEGRO_BITMAP *przedmioty = NULL;
+	ALLEGRO_BITMAP *ramka_wyboru = NULL;
 	wlasciwosci_pola_t** mapadane = NULL;
 	dane_npc_t *dane_do_ruchu_npc;
 	FILE *dane_do_mapy;
-	
+	ALLEGRO_FONT *czcionka_48;
+	ALLEGRO_FONT *czcionka_18;
+	ALLEGRO_FONT *czcionka_18_cienka;
+	przedmiot_t opisy_przedmiotow[7];
+	typy_przedmiotow_t typy_przedmiotow_tab[6];
 	bool przyciski[4] = { false,false,false,false };
 	okno = al_create_display(750, 750);
 	al_init_image_addon();
+	al_init_font_addon();
 	al_install_keyboard();
-
+	al_init_ttf_addon();
+	ladowanie_opisow_przedmiotow(opisy_przedmiotow);
+	ladowanie_typow_przedmiotow(typy_przedmiotow_tab);
 	kolejka = al_create_event_queue();
 	timer = al_create_timer(1.0 / 60);
 	al_register_event_source(kolejka, al_get_timer_event_source(timer));
 	al_register_event_source(kolejka, al_get_keyboard_event_source());
 	bool zakonczenie=false;
-	
+	//wczytywanie niezmiennych bitmap
+	bohater = al_load_bitmap("bohater.png");
+	ekwipunek = al_load_bitmap("ekwipunek.png");
+	serce = al_load_bitmap("serce.png");
+	przedmioty = al_load_bitmap("przedmioty.png");
+	czcionka_48 = al_load_ttf_font("czcionka/kleptocracy titling bd.ttf", 48, 0);
+	czcionka_18 = al_load_ttf_font("czcionka/kleptocracy titling rg.ttf", 18, 0);
+	czcionka_18_cienka =al_load_ttf_font("czcionka/kleptocracy titling lt.ttf", 18, 0);
+	ramka_wyboru = al_load_bitmap("ramka_wyboru.png");
+	//zerowanie tablicy z przedmoitami;
+	for (i = 0; i < 5; i++) {
+		for (j = 0; j < 3; j++) {
+			przedmioty_w_ekwipunku[i][j] = 0;
+		}
+	}
+	//zerowanie przedmoitow zalozonych
+	for (i = 0; i < 6; i++) {
+		przedmioty_zalozone[i] = 0;
+	}
+	dodaj_przedmiot_do_ekwipunku(przedmioty_w_ekwipunku, 2);
+	dodaj_przedmiot_do_ekwipunku(przedmioty_w_ekwipunku, 4);
+	dodaj_przedmiot_do_ekwipunku(przedmioty_w_ekwipunku, 1);
+	dodaj_przedmiot_do_ekwipunku(przedmioty_w_ekwipunku, 1);
 	while (!zakonczenie) {
 		ALLEGRO_BITMAP **NPC = NULL;
 		ALLEGRO_BITMAP *mapa = NULL;
@@ -169,8 +249,7 @@ int main() {
 				}
 			}
 		}
-		bohater = al_load_bitmap("bohater.png");
-		ekwipunek = al_load_bitmap("ekwipunek.png");
+
 		mapa = al_load_bitmap(nazwy_plikow[numerbitmapy][0]);
 		for (i = 0; i < ilosc_npc; i++) {
 			NPC[i] = al_load_bitmap(nazwy_npc[i]);
@@ -183,77 +262,81 @@ int main() {
 		while (!zmianamapy) {
 			ALLEGRO_EVENT zdarzenie;
 			al_wait_for_event(kolejka, &zdarzenie);
-			if (zdarzenie.type == ALLEGRO_EVENT_KEY_DOWN)
-			{
-				switch (zdarzenie.keyboard.keycode)
+				if (zdarzenie.type == ALLEGRO_EVENT_KEY_DOWN)
 				{
-				case ALLEGRO_KEY_UP:
-					przyciski[0] = true;
-					break;
-				case ALLEGRO_KEY_DOWN:
-					przyciski[1] = true;
-					break;
-				case ALLEGRO_KEY_LEFT:
-					przyciski[2] = true;
-					break;
-				case ALLEGRO_KEY_RIGHT:
-					przyciski[3] = true;
-					break;
-				}
-			}
-			if (zdarzenie.type == ALLEGRO_EVENT_KEY_UP)
-			{
-				switch (zdarzenie.keyboard.keycode)
-				{
-				case ALLEGRO_KEY_UP:
-					przyciski[0] = false;
-					break;
-				case ALLEGRO_KEY_DOWN:
-					przyciski[1] = false;
-					break;
-				case ALLEGRO_KEY_LEFT:
-					przyciski[2] = false;
-					break;
-				case ALLEGRO_KEY_RIGHT:
-					przyciski[3] = false;
-					break;
-				case ALLEGRO_KEY_ESCAPE:
-					zakonczenie = true;
-					zmianamapy = true;
-					break;
-				case ALLEGRO_KEY_E:
-					if (czy_ekwipunek == false) {
-						czy_ekwipunek = true;
-					}
-					else
+					switch (zdarzenie.keyboard.keycode)
 					{
-						czy_ekwipunek = false;
+					case ALLEGRO_KEY_UP:
+						przyciski[0] = true;
+						break;
+					case ALLEGRO_KEY_DOWN:
+						przyciski[1] = true;
+						break;
+					case ALLEGRO_KEY_LEFT:
+						przyciski[2] = true;
+						break;
+					case ALLEGRO_KEY_RIGHT:
+						przyciski[3] = true;
+						break;
 					}
-					break;
 				}
-			}
+				if (zdarzenie.type == ALLEGRO_EVENT_KEY_UP)
+				{
+					switch (zdarzenie.keyboard.keycode)
+					{
+					case ALLEGRO_KEY_UP:
+						przyciski[0] = false;
+						break;
+					case ALLEGRO_KEY_DOWN:
+						przyciski[1] = false;
+						break;
+					case ALLEGRO_KEY_LEFT:
+						przyciski[2] = false;
+						break;
+					case ALLEGRO_KEY_RIGHT:
+						przyciski[3] = false;
+						break;
+					case ALLEGRO_KEY_ESCAPE:
+						zakonczenie = true;
+						zmianamapy = true;
+						break;
+					case ALLEGRO_KEY_E:
+						if (czy_ekwipunek == false) {
+							czy_ekwipunek = true;
+							ruch = false;
+						}
+						else
+						{
+							czy_ekwipunek = false;
+							ruch = true;
+						}
+						break;
+					}
+				}
 			aktualna_pozycjax = (mapax - bohaterx)*-1/misjednostka;
 			aktualna_pozycjay = (mapay - bohatery)*-1/misjednostka;
+			if (ruch) {
 				if (ydocelowe == mapay && przyciski[0] == true && aktualna_pozycjay > yspawnu) {
-					if (mapadane[aktualna_pozycjay - 1][aktualna_pozycjax].przeszkoda == false && mapadane[aktualna_pozycjay - 1][aktualna_pozycjax].npc_id==0 && mapadane[aktualna_pozycjay - 1][aktualna_pozycjax].przyszle_poz_npc == false) {
+					if (mapadane[aktualna_pozycjay - 1][aktualna_pozycjax].przeszkoda == false && mapadane[aktualna_pozycjay - 1][aktualna_pozycjax].npc_id == 0 && mapadane[aktualna_pozycjay - 1][aktualna_pozycjax].przyszle_poz_npc == false) {
 						ydocelowe += misjednostka;
 					}
 				}
 				if (ydocelowe == mapay && przyciski[1] == true && aktualna_pozycjay < wysokosc) {
-					if (mapadane[aktualna_pozycjay + 1][aktualna_pozycjax].przeszkoda == false && mapadane[aktualna_pozycjay + 1][aktualna_pozycjax].npc_id==0 && mapadane[aktualna_pozycjay + 1][aktualna_pozycjax].przyszle_poz_npc == false) {
+					if (mapadane[aktualna_pozycjay + 1][aktualna_pozycjax].przeszkoda == false && mapadane[aktualna_pozycjay + 1][aktualna_pozycjax].npc_id == 0 && mapadane[aktualna_pozycjay + 1][aktualna_pozycjax].przyszle_poz_npc == false) {
 						ydocelowe -= misjednostka;
 					}
 				}
 				if (xdocelowe == mapax && przyciski[2] == true && aktualna_pozycjax > xspawnu) {
-					if (mapadane[aktualna_pozycjay][aktualna_pozycjax - 1].przeszkoda == false && mapadane[aktualna_pozycjay][aktualna_pozycjax - 1].npc_id==0&& mapadane[aktualna_pozycjay][aktualna_pozycjax-1].przyszle_poz_npc == false) {
+					if (mapadane[aktualna_pozycjay][aktualna_pozycjax - 1].przeszkoda == false && mapadane[aktualna_pozycjay][aktualna_pozycjax - 1].npc_id == 0 && mapadane[aktualna_pozycjay][aktualna_pozycjax - 1].przyszle_poz_npc == false) {
 						xdocelowe += misjednostka;
 					}
 				}
 				if (xdocelowe == mapax && przyciski[3] == true && aktualna_pozycjax < szerokosc) {
-					if (mapadane[aktualna_pozycjay][aktualna_pozycjax + 1].przeszkoda == false && mapadane[aktualna_pozycjay][aktualna_pozycjax + 1].npc_id==0 && mapadane[aktualna_pozycjay][aktualna_pozycjax+1].przyszle_poz_npc == false) {
+					if (mapadane[aktualna_pozycjay][aktualna_pozycjax + 1].przeszkoda == false && mapadane[aktualna_pozycjay][aktualna_pozycjax + 1].npc_id == 0 && mapadane[aktualna_pozycjay][aktualna_pozycjax + 1].przyszle_poz_npc == false) {
 						xdocelowe -= misjednostka;
 					}
 				}
+			}
 			printf_s("x  %i       y %i   \n",aktualna_pozycjax, aktualna_pozycjay);
 			if (mapadane[aktualna_pozycjay][aktualna_pozycjax].przejscie_mapy !=0) {
 				zmianamapy = true;
@@ -376,9 +459,58 @@ int main() {
 				}
 			}
 			al_draw_bitmap(bohater, bohaterx, bohatery, 0);
-			if (czy_ekwipunek == true) {
-				al_draw_bitmap(ekwipunek, 200, 200, 0);
+			//przemieszczanie podswietlenia w ekwipunku
+			if (zdarzenie.type == ALLEGRO_EVENT_KEY_DOWN && czy_ekwipunek)
+			{
+				switch (zdarzenie.keyboard.keycode)
+				{
+				case ALLEGRO_KEY_UP:
+					if (y_ramki > 0){
+						y_ramki--;
+					}
+					break;
+				case ALLEGRO_KEY_DOWN:
+					if (y_ramki < 4){
+						y_ramki++;
+					}
+					break;
+				case ALLEGRO_KEY_LEFT:
+					if (x_ramki > 0){
+						x_ramki--;
+					}
+					break;
+				case ALLEGRO_KEY_RIGHT:
+					if (x_ramki < 2){
+						x_ramki++;
+					}
+					break;
+				case ALLEGRO_KEY_ENTER:
+					zalozenie_przedmiotu(przedmioty_zalozone, przedmioty_w_ekwipunku, opisy_przedmiotow, x_ramki, y_ramki);
+				}
 			}
+			if (czy_ekwipunek == true) {
+				al_draw_bitmap(ekwipunek, 200, 150, 0);
+				al_draw_bitmap(ramka_wyboru, 550+x_ramki*misjednostka, 200+y_ramki*misjednostka, 0);
+				for (i = 0; i < 5; i++) {
+					for (j = 0; j < 3; j++) {
+						if (przedmioty_w_ekwipunku[i][j] != 0) {
+							al_draw_bitmap_region(przedmioty, (przedmioty_w_ekwipunku[i][j] - 1)*misjednostka, misjednostka, misjednostka, misjednostka, j*misjednostka + 550, i*misjednostka + 200,0);
+						}
+					}
+				}
+				if (przedmioty_w_ekwipunku[y_ramki][x_ramki] != 0) {
+					al_draw_text(czcionka_18, al_map_rgb(0, 0, 0), 260, 460, 0, opisy_przedmiotow[przedmioty_w_ekwipunku[y_ramki][x_ramki]-1].nazwa);
+					al_draw_text(czcionka_18_cienka, al_map_rgb(0, 0, 0), 260, 480, 0,typy_przedmiotow_tab[opisy_przedmiotow[przedmioty_w_ekwipunku[y_ramki][x_ramki] - 1].typ-1].nazwa);
+					al_draw_text(czcionka_18_cienka, al_map_rgb(0, 0, 0), 260, 500,0, opisy_przedmiotow[przedmioty_w_ekwipunku[y_ramki][x_ramki] - 1].opis);
+				}
+				for (i = 0; i < 6; i++) {
+					if (przedmioty_zalozone[i] != 0) {
+						al_draw_bitmap_region(przedmioty, (przedmioty_zalozone[i] - 1)*misjednostka, misjednostka, misjednostka, misjednostka, typy_przedmiotow_tab[opisy_przedmiotow[przedmioty_zalozone[i]-1].typ-1].x, typy_przedmiotow_tab[opisy_przedmiotow[przedmioty_zalozone[i]-1].typ-1].y, 0);
+					}
+				}
+			}
+			al_draw_bitmap(serce, 0, 0, 0);
+			al_draw_textf(czcionka_48, al_map_rgb(189, 29, 29),50,0,0,"%i",zdrowie);
 			al_flip_display();
 			al_clear_to_color(al_map_rgb(0, 0, 0));
 		}
@@ -398,9 +530,72 @@ int main() {
 	}
 	al_destroy_bitmap(ekwipunek);
 	al_destroy_bitmap(bohater);
+	al_destroy_bitmap(przedmioty);
 	al_destroy_display(okno);
 	al_destroy_event_queue(kolejka);
-	
+	al_destroy_bitmap(serce);
+	al_destroy_font(czcionka_48);
+	al_destroy_font(czcionka_18);
+	al_destroy_bitmap(ramka_wyboru);
+	al_destroy_font(czcionka_18_cienka);
 
 	return 0;
+}
+/*typy
+1 -bron
+2 -helm
+3 -zbroja
+4 -uzytkowe
+5 -pieniadze
+6 -jedzenie
+*/
+void ladowanie_typow_przedmiotow(typy_przedmiotow_t *tablica) {
+	strcpy_s(tablica[0].nazwa, 20, "typ: bron");
+	tablica[0].x = 300;
+	tablica[0].y = 350;
+	strcpy_s(tablica[1].nazwa, 20, "typ: helm");
+	tablica[1].x = 250;
+	tablica[1].y = 450;
+	strcpy_s(tablica[2].nazwa, 20, "typ: zbroja");
+	tablica[2].x = 250;
+	tablica[2].y = 450;
+	strcpy_s(tablica[3].nazwa, 20, "typ: uzytkowe");
+	tablica[3].x = 450;
+	tablica[3].y = 300;
+	strcpy_s(tablica[4].nazwa, 20, "typ: pieniadze");
+	tablica[4].x = 250;
+	tablica[4].y = 450;
+	strcpy_s(tablica[5].nazwa, 20, "typ: jedzenie");
+	tablica[5].x = 250;
+	tablica[5].y = 450;
+}
+void ladowanie_opisow_przedmiotow(przedmiot_t *tablica) {
+	//wiadro z woda
+	strcpy_s(tablica[0].nazwa,20,"wiadro z woda");
+	tablica[0].typ = 4;
+	strcpy_s(tablica[0].opis, 50, "wiadro pelne wody");
+	//miecz
+	strcpy_s(tablica[1].nazwa, 20, "miecz");
+	tablica[1].typ = 1;
+	strcpy_s(tablica[1].opis, 50, "bardzo ostry miecz");
+	//puste wiadro
+	strcpy_s(tablica[2].nazwa, 20, "puste wiadro");
+	tablica[2].typ = 4;
+	strcpy_s(tablica[2].opis, 50, "puste wiadro");
+	//noz
+	strcpy_s(tablica[3].nazwa, 20, "noz");
+	tablica[3].typ = 1;
+	strcpy_s(tablica[3].opis, 50, "ostry noz");
+	//widelec
+	strcpy_s(tablica[4].nazwa, 20, "widelec");
+	tablica[4].typ = 1;
+	strcpy_s(tablica[4].opis, 50, "zazwyczaj sluzy do jedzenia");
+	//moneta
+	strcpy_s(tablica[5].nazwa, 20,"mismoneta");
+	tablica[5].typ = 5;
+	strcpy_s(tablica[5].opis, 50, "srodek platniczy");
+	//jedzenie
+	strcpy_s(tablica[6].nazwa, 20, "miodek");
+	tablica[6].typ = 6;
+	strcpy_s(tablica[6].opis, 50, "bardzo smaczny miodek");
 }
