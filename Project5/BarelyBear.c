@@ -6,15 +6,18 @@
 #include <string.h>
 #include <time.h>
 #include <allegro5\allegro_font.h>
-#include <allegro5\\allegro_ttf.h>
+#include <allegro5\allegro_ttf.h>
+#include "dialogi.h"
 struct wlasciwosci_pola {
 	bool przeszkoda;
 	int  npc;
 	int  przejscie_mapy;
 	int npc_id;
+	int przeciwnik;
 	bool przyszle_poz_npc;
 };
 struct dane_npc {
+	bool rozmawia;
 	int npc_id;
 	int nr_npc;
 	int pozx;
@@ -63,11 +66,14 @@ void czytanie_nazw(char *nazwy[][2]) {
 	nazwy[1][1] = "wnetrze.leafe";
 
 }
+void czytanie_nazw_przeciwnikow(char **nazwy) {
+	nazwy[0] = "wilk.png";
+}
 void ladowanie_opisow_przedmiotow(przedmiot_t *tablica);
 void ladowanie_typow_przedmiotow(typy_przedmiotow_t *tablica);
 void czytanie_nazw_npc(char **nazwy) {
-	nazwy[0] = "przykladowynpc1.png";
-	nazwy[1] = "przykladowynpc2.png";
+	nazwy[0] = "mieszkaniec.png";
+	nazwy[1] = "starzec.png";
 }
 bool dodaj_przedmiot_do_ekwipunku(int ekwipunek[][3], int id_przedmiotu) {
 	int i, j;
@@ -80,6 +86,35 @@ bool dodaj_przedmiot_do_ekwipunku(int ekwipunek[][3], int id_przedmiotu) {
 		}
 	}
 	return false;
+}
+bool kolizja(int poz_x, int poz_y, wlasciwosci_pola_t **struktura_mapy) {
+	if (struktura_mapy[poz_y][poz_x].przeszkoda == true || struktura_mapy[poz_y][poz_x].npc_id != 0 || struktura_mapy[poz_y][poz_x].przyszle_poz_npc == true) {
+		return true;
+	}
+	return false;
+}
+int sprawdzenie_do_rozmowy(wlasciwosci_pola_t **dane, int poz_x, int poz_y,int wysokosc_mapy,int szerokosc_mapy,dane_npc_t *dane_do_npc) {
+	int max_x=poz_x+1;
+	int min_x=poz_x-1;
+	int max_y=poz_y+1;
+	int min_y=poz_y-1;
+	int npc_id;
+	int max_kratek_x = szerokosc_mapy;
+	int max_kratek_y = wysokosc_mapy;
+	int i, j;
+	for (i = min_y; i <=max_y; i++) {
+		for (j = min_x; j <= max_x; j++) {
+			if (i >= 0 && j >= 0 && i <= max_kratek_y&& j <= max_kratek_x) {
+				if (dane[i][j].npc_id != 0) {
+					npc_id = dane[i][j].npc_id-1;
+					if (dane_do_npc[npc_id].pozx == dane_do_npc[npc_id].poz_docelowa_x && dane_do_npc[npc_id].pozy == dane_do_npc[npc_id].poz_docelowa_y) {
+						return npc_id;
+					}
+				}
+			}
+		}
+	}
+	return 0;
 }
 void zalozenie_przedmiotu(int* zalozone_przedmioty, int przedmioty_w_ekwipunku[][3],przedmiot_t *tablica,int pozx,int pozy) {
 	int tmp;
@@ -115,19 +150,28 @@ int main() {
 	int przedmioty_w_ekwipunku[5][3];
 	int przedmioty_zalozone[6];
 	int zdrowie = 100;
-	int ilosc_npc,ilosc_rysowanych_npc;
+	int nr_zad = 1,nr_odp;
+	int ilosc_npc,ilosc_rysowanych_npc,ilosc_wrogow=1;
 	int aktualna_poz_npc_x, aktualna_poz_npc_y;
 	int numerbitmapy=0;
 	int xspawnu, yspawnu,xstarejpoz=0,ystarejpoz=0;
+	int do_wyboru_dialogu;
 	char *nazwy_plikow[2][2];
 	char *nazwy_npc[2];
+	char *nazwy_przeciwnikow[1];
+	int rozmowa,id,ktory_rozmawia;
+	float czas_aktualny;
+	clock_t czas_startowy;
 	int xszukania, yszukania, szerszukania=16;
 	czytanie_nazw(nazwy_plikow);
 	czytanie_nazw_npc(nazwy_npc);
+	czytanie_nazw_przeciwnikow(nazwy_przeciwnikow);
 	bool zmianamapy=false;
 	bool czy_ekwipunek = false;
 	bool przemieszczenie = false;
 	bool ruch =true;
+	bool wziecie_czasu=true;
+	bool wybor = false;
 	al_init();
 	ALLEGRO_DISPLAY *okno = NULL;
 	ALLEGRO_TIMER *timer = NULL;
@@ -137,6 +181,9 @@ int main() {
 	ALLEGRO_BITMAP *serce = NULL;
 	ALLEGRO_BITMAP *przedmioty = NULL;
 	ALLEGRO_BITMAP *ramka_wyboru = NULL;
+	ALLEGRO_BITMAP *ramka_do_dialogow = NULL;
+	ALLEGRO_BITMAP *ramka_wyboru_do_dialogow = NULL;
+	ALLEGRO_BITMAP *glowy = NULL;
 	wlasciwosci_pola_t** mapadane = NULL;
 	dane_npc_t *dane_do_ruchu_npc;
 	FILE *dane_do_mapy;
@@ -167,6 +214,9 @@ int main() {
 	czcionka_18 = al_load_ttf_font("czcionka/kleptocracy titling rg.ttf", 18, 0);
 	czcionka_18_cienka =al_load_ttf_font("czcionka/kleptocracy titling lt.ttf", 18, 0);
 	ramka_wyboru = al_load_bitmap("ramka_wyboru.png");
+	glowy = al_load_bitmap("glowy.png");
+	ramka_do_dialogow = al_load_bitmap("okno dialogowe.png");
+	ramka_wyboru_do_dialogow = al_load_bitmap("podkreslenie_tekstu.png");
 	//zerowanie tablicy z przedmoitami;
 	for (i = 0; i < 5; i++) {
 		for (j = 0; j < 3; j++) {
@@ -184,6 +234,7 @@ int main() {
 	while (!zakonczenie) {
 		ALLEGRO_BITMAP **NPC = NULL;
 		ALLEGRO_BITMAP *mapa = NULL;
+		ALLEGRO_BITMAP **wrogowie = NULL;
 		zmianamapy = false;
 		fopen_s(&dane_do_mapy, nazwy_plikow[numerbitmapy][1], "r");
 		fscanf_s(dane_do_mapy, "%i", &wysokosc);
@@ -207,8 +258,18 @@ int main() {
 		for (i = 0; i < wysokosc; i++) {
 			mapadane[i] = (wlasciwosci_pola_t*)malloc(szerokosc * sizeof(wlasciwosci_pola_t));
 		}
+		for (i = 0; i < wysokosc; i++) {
+			for (j = 0; j < szerokosc; j++) {
+				mapadane[i][j].przeciwnik = 0;
+			}
+		}
+		mapadane[10][12].przeciwnik = 1;
+		mapadane[14][8].przeciwnik = 1;
 		if (ilosc_npc != 0) {
 			NPC = (ALLEGRO_BITMAP**)malloc(ilosc_npc * sizeof(ALLEGRO_BITMAP*));
+		}
+		if (ilosc_wrogow != 0) {
+			wrogowie= (ALLEGRO_BITMAP**)malloc(ilosc_wrogow * sizeof(ALLEGRO_BITMAP*));
 		}
 		wczytanie_z_pliku(dane_do_mapy, mapadane, wysokosc, szerokosc);
 		ilosc_rysowanych_npc = 0;
@@ -235,6 +296,7 @@ int main() {
 					mapadane[i][j].npc_id = x;
 					x++;
 					tmp = x - 2;//arg
+					dane_do_ruchu_npc[tmp].rozmawia = false;
 					dane_do_ruchu_npc[tmp].pozx = j * misjednostka*-1;
 					dane_do_ruchu_npc[tmp].pozy = i * misjednostka*-1;
 					dane_do_ruchu_npc[tmp].poz_docelowa_x = dane_do_ruchu_npc[tmp].pozx;
@@ -249,10 +311,13 @@ int main() {
 				}
 			}
 		}
-
+		rozmowa = 0;
 		mapa = al_load_bitmap(nazwy_plikow[numerbitmapy][0]);
 		for (i = 0; i < ilosc_npc; i++) {
 			NPC[i] = al_load_bitmap(nazwy_npc[i]);
+		}
+		for (i = 0; i < ilosc_wrogow; i++) {
+			wrogowie[i] = al_load_bitmap(nazwy_przeciwnikow[i]);
 		}
 		if (numerbitmapy == 0) {
 			mapadane[12][36].przejscie_mapy = 2;
@@ -262,6 +327,8 @@ int main() {
 		while (!zmianamapy) {
 			ALLEGRO_EVENT zdarzenie;
 			al_wait_for_event(kolejka, &zdarzenie);
+			aktualna_pozycjax = (mapax - bohaterx)*-1 / misjednostka;
+			aktualna_pozycjay = (mapay - bohatery)*-1 / misjednostka;
 				if (zdarzenie.type == ALLEGRO_EVENT_KEY_DOWN)
 				{
 					switch (zdarzenie.keyboard.keycode)
@@ -311,33 +378,41 @@ int main() {
 							ruch = true;
 						}
 						break;
+					case ALLEGRO_KEY_T:
+						rozmowa=sprawdzenie_do_rozmowy(mapadane, aktualna_pozycjax, aktualna_pozycjay, wysokosc, szerokosc, dane_do_ruchu_npc);
+						if (rozmowa != 0) {
+							dane_do_ruchu_npc[rozmowa].rozmawia = true;
+							ktory_rozmawia = rozmowa;
+							nr_odp = 0;
+							do_wyboru_dialogu = 1;
+						}
+						break;
 					}
 				}
-			aktualna_pozycjax = (mapax - bohaterx)*-1/misjednostka;
-			aktualna_pozycjay = (mapay - bohatery)*-1/misjednostka;
+
 			if (ruch) {
 				if (ydocelowe == mapay && przyciski[0] == true && aktualna_pozycjay > yspawnu) {
-					if (mapadane[aktualna_pozycjay - 1][aktualna_pozycjax].przeszkoda == false && mapadane[aktualna_pozycjay - 1][aktualna_pozycjax].npc_id == 0 && mapadane[aktualna_pozycjay - 1][aktualna_pozycjax].przyszle_poz_npc == false) {
+					if (!kolizja(aktualna_pozycjax,aktualna_pozycjay-1,mapadane)) {
 						ydocelowe += misjednostka;
 					}
 				}
 				if (ydocelowe == mapay && przyciski[1] == true && aktualna_pozycjay < wysokosc) {
-					if (mapadane[aktualna_pozycjay + 1][aktualna_pozycjax].przeszkoda == false && mapadane[aktualna_pozycjay + 1][aktualna_pozycjax].npc_id == 0 && mapadane[aktualna_pozycjay + 1][aktualna_pozycjax].przyszle_poz_npc == false) {
+					if (!kolizja(aktualna_pozycjax, aktualna_pozycjay + 1, mapadane)) {
 						ydocelowe -= misjednostka;
 					}
 				}
 				if (xdocelowe == mapax && przyciski[2] == true && aktualna_pozycjax > xspawnu) {
-					if (mapadane[aktualna_pozycjay][aktualna_pozycjax - 1].przeszkoda == false && mapadane[aktualna_pozycjay][aktualna_pozycjax - 1].npc_id == 0 && mapadane[aktualna_pozycjay][aktualna_pozycjax - 1].przyszle_poz_npc == false) {
+					if (!kolizja(aktualna_pozycjax-1, aktualna_pozycjay, mapadane)) {
 						xdocelowe += misjednostka;
 					}
 				}
 				if (xdocelowe == mapax && przyciski[3] == true && aktualna_pozycjax < szerokosc) {
-					if (mapadane[aktualna_pozycjay][aktualna_pozycjax + 1].przeszkoda == false && mapadane[aktualna_pozycjay][aktualna_pozycjax + 1].npc_id == 0 && mapadane[aktualna_pozycjay][aktualna_pozycjax + 1].przyszle_poz_npc == false) {
+					if (!kolizja(aktualna_pozycjax+1, aktualna_pozycjay, mapadane)) {
 						xdocelowe -= misjednostka;
 					}
 				}
 			}
-			printf_s("x  %i       y %i   \n",aktualna_pozycjax, aktualna_pozycjay);
+			//printf_s("x  %i       y %i   \n",aktualna_pozycjax, aktualna_pozycjay);
 			if (mapadane[aktualna_pozycjay][aktualna_pozycjax].przejscie_mapy !=0) {
 				zmianamapy = true;
 				if (numerbitmapy == 0) {
@@ -376,65 +451,67 @@ int main() {
 								tmp = mapadane[i][j].npc_id - 1;
 								al_draw_bitmap(NPC[dane_do_ruchu_npc[tmp].npc_id], dane_do_ruchu_npc[tmp].pozx*-1 + mapax, dane_do_ruchu_npc[tmp].pozy*-1 + mapay, 0);
 								if (dane_do_ruchu_npc[tmp].pozx == dane_do_ruchu_npc[tmp].poz_docelowa_x && dane_do_ruchu_npc[tmp].pozy == dane_do_ruchu_npc[tmp].poz_docelowa_y) {
-									if (dane_do_ruchu_npc[tmp].pozx / misjednostka*-1 != j || dane_do_ruchu_npc[tmp].pozy / misjednostka*-1 != i) {
-										x = mapadane[dane_do_ruchu_npc[tmp].pozy / misjednostka*-1][dane_do_ruchu_npc[tmp].pozx / misjednostka*-1].npc_id;
-										mapadane[dane_do_ruchu_npc[tmp].pozy / misjednostka*-1][dane_do_ruchu_npc[tmp].pozx / misjednostka*-1].npc_id = mapadane[i][j].npc_id;
-										mapadane[i][j].npc_id = x;
+									if (!dane_do_ruchu_npc[tmp].rozmawia) {
+										if (dane_do_ruchu_npc[tmp].pozx / misjednostka*-1 != j || dane_do_ruchu_npc[tmp].pozy / misjednostka*-1 != i) {
+											x = mapadane[dane_do_ruchu_npc[tmp].pozy / misjednostka*-1][dane_do_ruchu_npc[tmp].pozx / misjednostka*-1].npc_id;
+											mapadane[dane_do_ruchu_npc[tmp].pozy / misjednostka*-1][dane_do_ruchu_npc[tmp].pozx / misjednostka*-1].npc_id = mapadane[i][j].npc_id;
+											mapadane[i][j].npc_id = x;
+										}
+										x = rand() % 4;
+										aktualna_poz_npc_x = dane_do_ruchu_npc[tmp].pozx / misjednostka*-1;
+										aktualna_poz_npc_y = dane_do_ruchu_npc[tmp].pozy / misjednostka*-1;
+										if (dane_do_ruchu_npc[tmp].pozx == dane_do_ruchu_npc[tmp].poz_docelowa_x || dane_do_ruchu_npc[tmp].pozy == dane_do_ruchu_npc[tmp].poz_docelowa_y) {
+											mapadane[dane_do_ruchu_npc[tmp].poz_docelowa_y / misjednostka*-1][dane_do_ruchu_npc[tmp].poz_docelowa_x / misjednostka*-1].przyszle_poz_npc = false;
+										}
+										switch (x) {
+											//ruch npc w lewo
+										case 0:
+											if (((float)clock() - dane_do_ruchu_npc[tmp].czas) / CLOCKS_PER_SEC > przerwa_miedzy_przejsciami_npc) {
+												if (aktualna_poz_npc_x > xspawnu && aktualna_poz_npc_x > dane_do_ruchu_npc[tmp].minx) {
+													if (!kolizja(aktualna_poz_npc_x - 1, aktualna_poz_npc_y, mapadane) && (aktualna_pozycjax != aktualna_poz_npc_x - 1 || aktualna_pozycjay != aktualna_poz_npc_y)) {
+														dane_do_ruchu_npc[tmp].poz_docelowa_x += misjednostka;
+														dane_do_ruchu_npc[tmp].czas = clock();
+													}
+												}
+											}
+											break;
+											//ruch npc w prawo
+										case 1:
+											if (((float)clock() - dane_do_ruchu_npc[tmp].czas) / CLOCKS_PER_SEC > przerwa_miedzy_przejsciami_npc) {
+												if (aktualna_poz_npc_x < szerokosc && aktualna_poz_npc_x < dane_do_ruchu_npc[tmp].maxx) {
+													if (!kolizja(aktualna_poz_npc_x + 1, aktualna_poz_npc_y, mapadane) && (aktualna_pozycjax != aktualna_poz_npc_x + 1 || aktualna_pozycjay != aktualna_poz_npc_y)) {
+														dane_do_ruchu_npc[tmp].poz_docelowa_x -= misjednostka;
+														dane_do_ruchu_npc[tmp].czas = clock();
+													}
+												}
+											}
+											break;
+											//ruch npc w gore
+										case 2:
+											if (((float)clock() - dane_do_ruchu_npc[tmp].czas) / CLOCKS_PER_SEC > przerwa_miedzy_przejsciami_npc) {
+												if (aktualna_poz_npc_y > yspawnu&& aktualna_poz_npc_y > dane_do_ruchu_npc[tmp].miny) {
+													if (!kolizja(aktualna_poz_npc_x, aktualna_poz_npc_y - 1, mapadane) && (aktualna_pozycjax != aktualna_poz_npc_x || aktualna_pozycjay != aktualna_poz_npc_y - 1)) {
+														dane_do_ruchu_npc[tmp].poz_docelowa_y += misjednostka;
+														dane_do_ruchu_npc[tmp].czas = clock();
+
+													}
+												}
+											}
+											break;
+											//ruch npc w dol
+										case 3:
+											if (((float)clock() - dane_do_ruchu_npc[tmp].czas) / CLOCKS_PER_SEC > przerwa_miedzy_przejsciami_npc) {
+												if (aktualna_poz_npc_y < wysokosc && aktualna_poz_npc_y < dane_do_ruchu_npc[tmp].maxy) {
+													if (!kolizja(aktualna_poz_npc_x, aktualna_poz_npc_y + 1, mapadane) && (aktualna_pozycjax != aktualna_poz_npc_x || aktualna_pozycjay != aktualna_poz_npc_y + 1)) {
+														dane_do_ruchu_npc[tmp].poz_docelowa_y -= misjednostka;
+														dane_do_ruchu_npc[tmp].czas = clock();
+													}
+												}
+											}
+											break;
+
+										}
 									}
-									x = rand() % 4;
-									aktualna_poz_npc_x = dane_do_ruchu_npc[tmp].pozx / misjednostka*-1;
-									aktualna_poz_npc_y = dane_do_ruchu_npc[tmp].pozy / misjednostka*-1;
-									if (dane_do_ruchu_npc[tmp].pozx == dane_do_ruchu_npc[tmp].poz_docelowa_x || dane_do_ruchu_npc[tmp].pozy == dane_do_ruchu_npc[tmp].poz_docelowa_y){
-										mapadane[dane_do_ruchu_npc[tmp].poz_docelowa_y / misjednostka*-1][dane_do_ruchu_npc[tmp].poz_docelowa_x / misjednostka*-1].przyszle_poz_npc = false;
-								}
-									switch (x) {
-										//ruch npc w lewo
-									case 0:
-										if (((float)clock() - dane_do_ruchu_npc[tmp].czas) / CLOCKS_PER_SEC> przerwa_miedzy_przejsciami_npc) {
-											if (aktualna_poz_npc_x > xspawnu && aktualna_poz_npc_x > dane_do_ruchu_npc[tmp].minx) {
-												if (mapadane[aktualna_poz_npc_y][aktualna_poz_npc_x - 1].przeszkoda == false && mapadane[aktualna_poz_npc_y][aktualna_poz_npc_x - 1].przyszle_poz_npc == false && mapadane[aktualna_poz_npc_y][aktualna_poz_npc_x - 1].npc_id == 0 && (aktualna_pozycjax != aktualna_poz_npc_x - 1 || aktualna_pozycjay != aktualna_poz_npc_y)) {
-													dane_do_ruchu_npc[tmp].poz_docelowa_x += misjednostka;
-													dane_do_ruchu_npc[tmp].czas = clock();
-												}
-											}
-										}
-										break;
-										//ruch npc w prawo
-									case 1:
-										if (((float)clock() - dane_do_ruchu_npc[tmp].czas) / CLOCKS_PER_SEC> przerwa_miedzy_przejsciami_npc) {
-											if (aktualna_poz_npc_x < szerokosc && aktualna_poz_npc_x < dane_do_ruchu_npc[tmp].maxx) {
-												if (mapadane[aktualna_poz_npc_y][aktualna_poz_npc_x + 1].przeszkoda == false && mapadane[aktualna_poz_npc_y][aktualna_poz_npc_x + 1].przyszle_poz_npc == false && mapadane[aktualna_poz_npc_y][aktualna_poz_npc_x + 1].npc_id == 0 && (aktualna_pozycjax != aktualna_poz_npc_x + 1 || aktualna_pozycjay != aktualna_poz_npc_y)) {
-													dane_do_ruchu_npc[tmp].poz_docelowa_x -= misjednostka;
-													dane_do_ruchu_npc[tmp].czas = clock();
-												}
-											}
-										}
-										break;
-										//ruch npc w gore
-									case 2:
-										if (((float)clock() - dane_do_ruchu_npc[tmp].czas) / CLOCKS_PER_SEC > przerwa_miedzy_przejsciami_npc) {
-											if (aktualna_poz_npc_y > yspawnu&& aktualna_poz_npc_y > dane_do_ruchu_npc[tmp].miny) {
-												if (mapadane[aktualna_poz_npc_y - 1][aktualna_poz_npc_x].przeszkoda == false && mapadane[aktualna_poz_npc_y - 1][aktualna_poz_npc_x].przyszle_poz_npc == false && mapadane[aktualna_poz_npc_y - 1][aktualna_poz_npc_x].npc_id == 0 && (aktualna_pozycjax != aktualna_poz_npc_x || aktualna_pozycjay != aktualna_poz_npc_y - 1)) {
-													dane_do_ruchu_npc[tmp].poz_docelowa_y += misjednostka;
-													dane_do_ruchu_npc[tmp].czas = clock();
-
-												}
-											}
-										}
-										break;
-										//ruch npc w dol
-									case 3:
-										if (((float)clock() - dane_do_ruchu_npc[tmp].czas) / CLOCKS_PER_SEC > przerwa_miedzy_przejsciami_npc) {
-											if (aktualna_poz_npc_y < wysokosc && aktualna_poz_npc_y < dane_do_ruchu_npc[tmp].maxy) {
-												if (mapadane[aktualna_poz_npc_y + 1][aktualna_poz_npc_x].przeszkoda == false && mapadane[aktualna_poz_npc_y + 1][aktualna_poz_npc_x].przyszle_poz_npc == false && mapadane[aktualna_poz_npc_y + 1][aktualna_poz_npc_x].npc_id == 0 && (aktualna_pozycjax != aktualna_poz_npc_x || aktualna_pozycjay != aktualna_poz_npc_y + 1)) {
-													dane_do_ruchu_npc[tmp].poz_docelowa_y -= misjednostka;
-													dane_do_ruchu_npc[tmp].czas = clock();
-												}
-											}
-										}
-										break;
-
-										}
 								}
 								if (dane_do_ruchu_npc[tmp].pozx != dane_do_ruchu_npc[tmp].poz_docelowa_x || dane_do_ruchu_npc[tmp].pozy != dane_do_ruchu_npc[tmp].poz_docelowa_y) {
 									mapadane[dane_do_ruchu_npc[tmp].poz_docelowa_y / misjednostka*-1][dane_do_ruchu_npc[tmp].poz_docelowa_x / misjednostka*-1].przyszle_poz_npc = true;
@@ -453,6 +530,9 @@ int main() {
 										dane_do_ruchu_npc[tmp].pozy -= 1;
 									}
 								}
+							}
+							if (mapadane[i][j].przeciwnik != 0) {
+								al_draw_bitmap(wrogowie[mapadane[i][j].przeciwnik-1], j*misjednostka - mapax*-1, i*misjednostka - mapay*-1, 0);
 							}
 						}
 					}
@@ -509,6 +589,46 @@ int main() {
 					}
 				}
 			}
+			if (rozmowa != 0) {
+				ruch = false;
+				id = dane_do_ruchu_npc[rozmowa].nr_npc;
+				al_draw_bitmap(ramka_do_dialogow, 0, 0, 0);
+				if (wybor) {
+					al_draw_bitmap_region(glowy, 0, 0, 150, 150, 50, 550, 0);
+						al_draw_bitmap(ramka_wyboru_do_dialogow, 190, 520 + do_wyboru_dialogu * 30, 0);
+					if (zdarzenie.type == ALLEGRO_EVENT_KEY_UP) {
+						switch (zdarzenie.keyboard.keycode)
+						{
+						case ALLEGRO_KEY_UP:
+							if (do_wyboru_dialogu >1) {
+								do_wyboru_dialogu--;
+							}
+							break;
+						case ALLEGRO_KEY_DOWN:
+							if (do_wyboru_dialogu <4) {
+								do_wyboru_dialogu++;
+							}
+							break;
+						case ALLEGRO_KEY_ENTER:
+							nr_odp = do_wyboru_dialogu;
+							wziecie_czasu = true;
+							wybor = false;
+						}
+					}
+				}
+				if (wziecie_czasu) {
+					czas_startowy = clock();
+					wziecie_czasu = false;
+				}
+				al_draw_bitmap_region(glowy,id*150, 0, 150, 150, 50, 550, 0);
+				czas_aktualny = ((float)clock()- czas_startowy) / CLOCKS_PER_SEC;
+				dialogi(id, &nr_odp, &rozmowa, nr_zad,czas_aktualny,&wziecie_czasu,&wybor);
+				if (rozmowa == 0) {
+					wziecie_czasu = true;
+					dane_do_ruchu_npc[ktory_rozmawia].rozmawia = false;
+					ruch = true;
+				}
+			}
 			al_draw_bitmap(serce, 0, 0, 0);
 			al_draw_textf(czcionka_48, al_map_rgb(189, 29, 29),50,0,0,"%i",zdrowie);
 			al_flip_display();
@@ -526,6 +646,12 @@ int main() {
 			}
 			free(NPC);
 		}
+		if (ilosc_wrogow != 0) {
+			for (i = 0; i < ilosc_wrogow; i++) {
+				al_destroy_bitmap(wrogowie[i]);
+			}
+			free(wrogowie);
+		}
 		al_destroy_bitmap(mapa);
 	}
 	al_destroy_bitmap(ekwipunek);
@@ -538,6 +664,9 @@ int main() {
 	al_destroy_font(czcionka_18);
 	al_destroy_bitmap(ramka_wyboru);
 	al_destroy_font(czcionka_18_cienka);
+	al_destroy_bitmap(glowy);
+	al_destroy_bitmap(ramka_do_dialogow);
+	al_destroy_bitmap(ramka_wyboru_do_dialogow);
 
 	return 0;
 }

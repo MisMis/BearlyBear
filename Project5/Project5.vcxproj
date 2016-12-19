@@ -125,9 +125,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BarelyBear.c" />
+    <ClCompile Include="dialogi.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="dialogi.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
