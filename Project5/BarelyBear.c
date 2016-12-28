@@ -60,20 +60,20 @@ void wczytanie_z_pliku(FILE *wyjscie, wlasciwosci_pola_t **dane, int wysokosc, i
 }
 void czytanie_nazw(char *nazwy[][2]) {
 
-	nazwy[0][0] = "miasto.png";
-	nazwy[0][1] = "mapa.leafe";
-	nazwy[1][0] = "wnetrze.png";
-	nazwy[1][1] = "wnetrze.leafe";
+	nazwy[0][0] = "data/mapy/miasto.png";
+	nazwy[0][1] = "data/mapy/mapa.leafe";
+	nazwy[1][0] = "data/mapy/wnetrze.png";
+	nazwy[1][1] = "data/mapy/wnetrze.leafe";
 
 }
 void czytanie_nazw_przeciwnikow(char **nazwy) {
-	nazwy[0] = "wilk.png";
+	nazwy[0] = "data/postacie/wilk.png";
 }
 void ladowanie_opisow_przedmiotow(przedmiot_t *tablica);
 void ladowanie_typow_przedmiotow(typy_przedmiotow_t *tablica);
 void czytanie_nazw_npc(char **nazwy) {
-	nazwy[0] = "mieszkaniec.png";
-	nazwy[1] = "starzec.png";
+	nazwy[0] = "data/postacie/mieszkaniec.png";
+	nazwy[1] = "data/postacie/starzec.png";
 }
 bool dodaj_przedmiot_do_ekwipunku(int ekwipunek[][3], int id_przedmiotu) {
 	int i, j;
@@ -129,6 +129,12 @@ void zalozenie_przedmiotu(int* zalozone_przedmioty, int przedmioty_w_ekwipunku[]
 			zalozone_przedmioty[tablica[przedmioty_w_ekwipunku[pozy][pozx] - 1].typ - 1] = przedmioty_w_ekwipunku[pozy][pozx];
 			przedmioty_w_ekwipunku[pozy][pozx] = tmp;
 		}
+	}
+}
+void zerowanie_klawiszy_ruchu(bool*klawisze) {
+	int i;
+	for (i = 0; i < 4; i++) {
+		klawisze[i] = false;
 	}
 }
 int main() {
@@ -206,17 +212,17 @@ int main() {
 	al_register_event_source(kolejka, al_get_keyboard_event_source());
 	bool zakonczenie=false;
 	//wczytywanie niezmiennych bitmap
-	bohater = al_load_bitmap("bohater.png");
-	ekwipunek = al_load_bitmap("ekwipunek.png");
-	serce = al_load_bitmap("serce.png");
-	przedmioty = al_load_bitmap("przedmioty.png");
-	czcionka_48 = al_load_ttf_font("czcionka/kleptocracy titling bd.ttf", 48, 0);
-	czcionka_18 = al_load_ttf_font("czcionka/kleptocracy titling rg.ttf", 18, 0);
-	czcionka_18_cienka =al_load_ttf_font("czcionka/kleptocracy titling lt.ttf", 18, 0);
-	ramka_wyboru = al_load_bitmap("ramka_wyboru.png");
-	glowy = al_load_bitmap("glowy.png");
-	ramka_do_dialogow = al_load_bitmap("okno dialogowe.png");
-	ramka_wyboru_do_dialogow = al_load_bitmap("podkreslenie_tekstu.png");
+	bohater = al_load_bitmap("data/postacie/bohater.png");
+	ekwipunek = al_load_bitmap("data/inne/ekwipunek.png");
+	serce = al_load_bitmap("data/inne/serce.png");
+	przedmioty = al_load_bitmap("data/inne/przedmioty.png");
+	czcionka_48 = al_load_ttf_font("data/czcionka/kleptocracy titling bd.ttf", 48, 0);
+	czcionka_18 = al_load_ttf_font("data/czcionka/kleptocracy titling rg.ttf", 18, 0);
+	czcionka_18_cienka =al_load_ttf_font("data/czcionka/kleptocracy titling lt.ttf", 18, 0);
+	ramka_wyboru = al_load_bitmap("data/inne/ramka_wyboru.png");
+	glowy = al_load_bitmap("data/inne/glowy.png");
+	ramka_do_dialogow = al_load_bitmap("data/inne/okno dialogowe.png");
+	ramka_wyboru_do_dialogow = al_load_bitmap("data/inne/podkreslenie_tekstu.png");
 	//zerowanie tablicy z przedmoitami;
 	for (i = 0; i < 5; i++) {
 		for (j = 0; j < 3; j++) {
@@ -331,21 +337,25 @@ int main() {
 			aktualna_pozycjay = (mapay - bohatery)*-1 / misjednostka;
 				if (zdarzenie.type == ALLEGRO_EVENT_KEY_DOWN)
 				{
-					switch (zdarzenie.keyboard.keycode)
-					{
-					case ALLEGRO_KEY_UP:
-						przyciski[0] = true;
-						break;
-					case ALLEGRO_KEY_DOWN:
-						przyciski[1] = true;
-						break;
-					case ALLEGRO_KEY_LEFT:
-						przyciski[2] = true;
-						break;
-					case ALLEGRO_KEY_RIGHT:
-						przyciski[3] = true;
-						break;
-					}
+						switch (zdarzenie.keyboard.keycode)
+						{
+						case ALLEGRO_KEY_UP:
+							zerowanie_klawiszy_ruchu(przyciski);
+							przyciski[0] = true;
+							break;
+						case ALLEGRO_KEY_DOWN:
+							zerowanie_klawiszy_ruchu(przyciski);
+							przyciski[1] = true;
+							break;
+						case ALLEGRO_KEY_LEFT:
+							zerowanie_klawiszy_ruchu(przyciski);
+							przyciski[2] = true;
+							break;
+						case ALLEGRO_KEY_RIGHT:
+							zerowanie_klawiszy_ruchu(przyciski);
+							przyciski[3] = true;
+							break;
+						}
 				}
 				if (zdarzenie.type == ALLEGRO_EVENT_KEY_UP)
 				{
@@ -390,7 +400,7 @@ int main() {
 					}
 				}
 
-			if (ruch) {
+			if (ruch && mapay==ydocelowe  && mapax==xdocelowe) {
 				if (ydocelowe == mapay && przyciski[0] == true && aktualna_pozycjay > yspawnu) {
 					if (!kolizja(aktualna_pozycjax,aktualna_pozycjay-1,mapadane)) {
 						ydocelowe += misjednostka;
@@ -620,7 +630,9 @@ int main() {
 					czas_startowy = clock();
 					wziecie_czasu = false;
 				}
-				al_draw_bitmap_region(glowy,id*150, 0, 150, 150, 50, 550, 0);
+				if (!wybor) {
+					al_draw_bitmap_region(glowy, id * 150, 0, 150, 150, 50, 550, 0);
+				}
 				czas_aktualny = ((float)clock()- czas_startowy) / CLOCKS_PER_SEC;
 				dialogi(id, &nr_odp, &rozmowa, nr_zad,czas_aktualny,&wziecie_czasu,&wybor);
 				if (rozmowa == 0) {
