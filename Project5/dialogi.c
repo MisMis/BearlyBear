@@ -3,12 +3,10 @@
 #include <allegro5\allegro_font.h>
 #include <allegro5\allegro_ttf.h>
 #include "dialogi.h"
-void dialogi(int rodzaj_npc, int* nr_odp,int *rozmowa, int zad,float czas,bool *wziecie_czasu,bool *wybor) {
+void dialogi(ALLEGRO_FONT *czcionka, int rodzaj_npc, int* nr_odp, int *rozmowa, int zad, float czas, bool *wziecie_czasu, bool *wybor) {
 	al_init();
 	al_init_font_addon();
-	ALLEGRO_FONT *czcionka;
 	//zadanie 1;
-	czcionka=al_load_ttf_font("data/czcionka/kleptocracy titling rg.ttf", 24, 0);
 	if (rodzaj_npc == 1 && zad ==1) {
 		al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "odejdz nie rozmawiam z nieznajomymi");
 		if (czas > 3) {
@@ -48,5 +46,4 @@ void dialogi(int rodzaj_npc, int* nr_odp,int *rozmowa, int zad,float czas,bool *
 			*rozmowa = 0;
 		}
 	}
-	al_destroy_font(czcionka);
 }

@@ -29,6 +29,9 @@ struct dane_npc {
 	int minx;
 	int miny;
 	clock_t czas;
+	int skok_miedzy_zmianami;
+	int kierunek;
+	int ostatni_kierunek;
 };
 struct przedmiot {
 	int typ;
@@ -74,6 +77,55 @@ void ladowanie_typow_przedmiotow(typy_przedmiotow_t *tablica);
 void czytanie_nazw_npc(char **nazwy) {
 	nazwy[0] = "data/postacie/mieszkaniec.png";
 	nazwy[1] = "data/postacie/starzec.png";
+}
+void rysowanie_postaci_w_ruchu(ALLEGRO_BITMAP *obraz,int kierunek,int pix,int poz_x,int poz_y,int ostatni_kierunek) {
+	int granica_skoku = 15;
+	if (kierunek !=0 &&kierunek!=1 && kierunek != 2 && kierunek != 3){
+		if (ostatni_kierunek == 0) {
+			al_draw_bitmap_region(obraz, 0, 100, 50, 50, poz_x, poz_y, 0);
+		}
+		if (ostatni_kierunek == 1) {
+			al_draw_bitmap_region(obraz, 50, 100, 50, 50, poz_x, poz_y, 0);
+		}
+		if (ostatni_kierunek == 2) {
+			al_draw_bitmap_region(obraz, 100, 100, 50, 50, poz_x, poz_y, 0);
+		}
+		if (ostatni_kierunek == 3) {
+			al_draw_bitmap_region(obraz, 150, 100, 50, 50, poz_x, poz_y, 0);
+		}
+	}
+	if (kierunek == 0) {
+		if (pix<=granica_skoku ) {
+			al_draw_bitmap_region(obraz, 0, 0, 50, 50, poz_x, poz_y, 0);
+		}
+		if (pix >granica_skoku) {
+			al_draw_bitmap_region(obraz, 0, 50, 50, 50, poz_x, poz_y, 0);
+		}
+	}
+	if (kierunek == 1) {
+		if (pix <=granica_skoku) {
+			al_draw_bitmap_region(obraz, 50, 0, 50, 50, poz_x, poz_y, 0);
+		}
+		if (pix >granica_skoku) {
+			al_draw_bitmap_region(obraz, 50, 50, 50, 50, poz_x, poz_y, 0);
+		}
+	}
+	if (kierunek == 2) {
+		if (pix <=granica_skoku) {
+			al_draw_bitmap_region(obraz, 100, 0, 50, 50, poz_x, poz_y, 0);
+		}
+		if (pix >granica_skoku) {
+			al_draw_bitmap_region(obraz, 100, 50, 50, 50, poz_x, poz_y, 0);
+		}
+	}
+	if (kierunek == 3) {
+		if (pix <=granica_skoku) {
+			al_draw_bitmap_region(obraz, 150, 0, 50, 50, poz_x, poz_y, 0);
+		}
+		if (pix >granica_skoku) {
+			al_draw_bitmap_region(obraz, 150, 50, 50, 50, poz_x, poz_y, 0);
+		}
+	}
 }
 bool dodaj_przedmiot_do_ekwipunku(int ekwipunek[][3], int id_przedmiotu) {
 	int i, j;
@@ -162,6 +214,8 @@ int main() {
 	int numerbitmapy=0;
 	int xspawnu, yspawnu,xstarejpoz=0,ystarejpoz=0;
 	int do_wyboru_dialogu;
+	int ostatni_kier_bohatera=1,kierunek=5;
+	int skok_zamiany_bitmapy_w_ruchu=0;
 	char *nazwy_plikow[2][2];
 	char *nazwy_npc[2];
 	char *nazwy_przeciwnikow[1];
@@ -195,6 +249,7 @@ int main() {
 	FILE *dane_do_mapy;
 	ALLEGRO_FONT *czcionka_48;
 	ALLEGRO_FONT *czcionka_18;
+	ALLEGRO_FONT *czcionka_24;
 	ALLEGRO_FONT *czcionka_18_cienka;
 	przedmiot_t opisy_przedmiotow[7];
 	typy_przedmiotow_t typy_przedmiotow_tab[6];
@@ -219,6 +274,7 @@ int main() {
 	czcionka_48 = al_load_ttf_font("data/czcionka/kleptocracy titling bd.ttf", 48, 0);
 	czcionka_18 = al_load_ttf_font("data/czcionka/kleptocracy titling rg.ttf", 18, 0);
 	czcionka_18_cienka =al_load_ttf_font("data/czcionka/kleptocracy titling lt.ttf", 18, 0);
+	czcionka_24 = al_load_ttf_font("data/czcionka/kleptocracy titling rg.ttf", 24, 0);
 	ramka_wyboru = al_load_bitmap("data/inne/ramka_wyboru.png");
 	glowy = al_load_bitmap("data/inne/glowy.png");
 	ramka_do_dialogow = al_load_bitmap("data/inne/okno dialogowe.png");
@@ -314,6 +370,9 @@ int main() {
 					dane_do_ruchu_npc[tmp].maxy = i+zasiegnpc;
 					dane_do_ruchu_npc[tmp].npc_id = mapadane[i][j].npc - 1;
 					dane_do_ruchu_npc[tmp].czas = clock();
+					dane_do_ruchu_npc[tmp].ostatni_kierunek = 1;
+					dane_do_ruchu_npc[tmp].kierunek = 5;
+					dane_do_ruchu_npc[tmp].skok_miedzy_zmianami = 0;
 				}
 			}
 		}
@@ -401,24 +460,37 @@ int main() {
 				}
 
 			if (ruch && mapay==ydocelowe  && mapax==xdocelowe) {
+				kierunek = 5;
 				if (ydocelowe == mapay && przyciski[0] == true && aktualna_pozycjay > yspawnu) {
 					if (!kolizja(aktualna_pozycjax,aktualna_pozycjay-1,mapadane)) {
 						ydocelowe += misjednostka;
+						ostatni_kier_bohatera = 0;
+						kierunek = 0;
+						skok_zamiany_bitmapy_w_ruchu = 0;
 					}
 				}
 				if (ydocelowe == mapay && przyciski[1] == true && aktualna_pozycjay < wysokosc) {
 					if (!kolizja(aktualna_pozycjax, aktualna_pozycjay + 1, mapadane)) {
 						ydocelowe -= misjednostka;
+						ostatni_kier_bohatera = 1;
+						kierunek = 1;
+						skok_zamiany_bitmapy_w_ruchu = 0;
 					}
 				}
 				if (xdocelowe == mapax && przyciski[2] == true && aktualna_pozycjax > xspawnu) {
 					if (!kolizja(aktualna_pozycjax-1, aktualna_pozycjay, mapadane)) {
 						xdocelowe += misjednostka;
+						ostatni_kier_bohatera = 2;
+						kierunek = 2;
+						skok_zamiany_bitmapy_w_ruchu = 0;
 					}
 				}
 				if (xdocelowe == mapax && przyciski[3] == true && aktualna_pozycjax < szerokosc) {
 					if (!kolizja(aktualna_pozycjax+1, aktualna_pozycjay, mapadane)) {
 						xdocelowe -= misjednostka;
+						ostatni_kier_bohatera = 3;
+						kierunek = 3;
+						skok_zamiany_bitmapy_w_ruchu = 0;
 					}
 				}
 			}
@@ -439,15 +511,23 @@ int main() {
 			if (zdarzenie.type == ALLEGRO_EVENT_TIMER) {
 				if (mapay < ydocelowe) {
 					mapay += 2;
+					skok_zamiany_bitmapy_w_ruchu += 2;
+					skok_zamiany_bitmapy_w_ruchu=skok_zamiany_bitmapy_w_ruchu % 30;
 				}
 				if (mapay > ydocelowe) {
 					mapay -= 2;
+					skok_zamiany_bitmapy_w_ruchu += 2;
+					skok_zamiany_bitmapy_w_ruchu = skok_zamiany_bitmapy_w_ruchu % 30;
 				}
 				if (mapax < xdocelowe) {
 					mapax += 2;
+					skok_zamiany_bitmapy_w_ruchu += 2;
+					skok_zamiany_bitmapy_w_ruchu = skok_zamiany_bitmapy_w_ruchu % 30;
 				}
 				if (mapax > xdocelowe) {
 					mapax -= 2;
+					skok_zamiany_bitmapy_w_ruchu += 2;
+					skok_zamiany_bitmapy_w_ruchu = skok_zamiany_bitmapy_w_ruchu % 30;
 				}
 			}
 			al_draw_bitmap(mapa, mapax, mapay, 0);
@@ -459,8 +539,10 @@ int main() {
 						if (i >= yspawnu && j >= xspawnu && j < szerokosc &&i < wysokosc) {
 							if (mapadane[i][j].npc_id != 0) {
 								tmp = mapadane[i][j].npc_id - 1;
-								al_draw_bitmap(NPC[dane_do_ruchu_npc[tmp].npc_id], dane_do_ruchu_npc[tmp].pozx*-1 + mapax, dane_do_ruchu_npc[tmp].pozy*-1 + mapay, 0);
+								//al_draw_bitmap(NPC[dane_do_ruchu_npc[tmp].npc_id], dane_do_ruchu_npc[tmp].pozx*-1 + mapax, dane_do_ruchu_npc[tmp].pozy*-1 + mapay, 0);
+								rysowanie_postaci_w_ruchu(NPC[dane_do_ruchu_npc[tmp].npc_id], dane_do_ruchu_npc[tmp].kierunek, dane_do_ruchu_npc[tmp].skok_miedzy_zmianami, dane_do_ruchu_npc[tmp].pozx*-1 + mapax, dane_do_ruchu_npc[tmp].pozy*-1 + mapay, dane_do_ruchu_npc[tmp].ostatni_kierunek);
 								if (dane_do_ruchu_npc[tmp].pozx == dane_do_ruchu_npc[tmp].poz_docelowa_x && dane_do_ruchu_npc[tmp].pozy == dane_do_ruchu_npc[tmp].poz_docelowa_y) {
+									dane_do_ruchu_npc[tmp].kierunek = 4;
 									if (!dane_do_ruchu_npc[tmp].rozmawia) {
 										if (dane_do_ruchu_npc[tmp].pozx / misjednostka*-1 != j || dane_do_ruchu_npc[tmp].pozy / misjednostka*-1 != i) {
 											x = mapadane[dane_do_ruchu_npc[tmp].pozy / misjednostka*-1][dane_do_ruchu_npc[tmp].pozx / misjednostka*-1].npc_id;
@@ -481,6 +563,8 @@ int main() {
 													if (!kolizja(aktualna_poz_npc_x - 1, aktualna_poz_npc_y, mapadane) && (aktualna_pozycjax != aktualna_poz_npc_x - 1 || aktualna_pozycjay != aktualna_poz_npc_y)) {
 														dane_do_ruchu_npc[tmp].poz_docelowa_x += misjednostka;
 														dane_do_ruchu_npc[tmp].czas = clock();
+														dane_do_ruchu_npc[tmp].ostatni_kierunek = 2;
+														dane_do_ruchu_npc[tmp].kierunek = 2;
 													}
 												}
 											}
@@ -492,6 +576,8 @@ int main() {
 													if (!kolizja(aktualna_poz_npc_x + 1, aktualna_poz_npc_y, mapadane) && (aktualna_pozycjax != aktualna_poz_npc_x + 1 || aktualna_pozycjay != aktualna_poz_npc_y)) {
 														dane_do_ruchu_npc[tmp].poz_docelowa_x -= misjednostka;
 														dane_do_ruchu_npc[tmp].czas = clock();
+														dane_do_ruchu_npc[tmp].ostatni_kierunek = 3;
+														dane_do_ruchu_npc[tmp].kierunek = 3;
 													}
 												}
 											}
@@ -503,7 +589,8 @@ int main() {
 													if (!kolizja(aktualna_poz_npc_x, aktualna_poz_npc_y - 1, mapadane) && (aktualna_pozycjax != aktualna_poz_npc_x || aktualna_pozycjay != aktualna_poz_npc_y - 1)) {
 														dane_do_ruchu_npc[tmp].poz_docelowa_y += misjednostka;
 														dane_do_ruchu_npc[tmp].czas = clock();
-
+														dane_do_ruchu_npc[tmp].ostatni_kierunek = 0;
+														dane_do_ruchu_npc[tmp].kierunek = 0;
 													}
 												}
 											}
@@ -515,6 +602,8 @@ int main() {
 													if (!kolizja(aktualna_poz_npc_x, aktualna_poz_npc_y + 1, mapadane) && (aktualna_pozycjax != aktualna_poz_npc_x || aktualna_pozycjay != aktualna_poz_npc_y + 1)) {
 														dane_do_ruchu_npc[tmp].poz_docelowa_y -= misjednostka;
 														dane_do_ruchu_npc[tmp].czas = clock();
+														dane_do_ruchu_npc[tmp].ostatni_kierunek = 1;
+														dane_do_ruchu_npc[tmp].kierunek = 1;
 													}
 												}
 											}
@@ -529,15 +618,24 @@ int main() {
 								if (zdarzenie.type == ALLEGRO_EVENT_TIMER) {
 									if (dane_do_ruchu_npc[tmp].pozx < dane_do_ruchu_npc[tmp].poz_docelowa_x) {
 										dane_do_ruchu_npc[tmp].pozx += 1;
+										dane_do_ruchu_npc[tmp].skok_miedzy_zmianami++;
+										dane_do_ruchu_npc[tmp].skok_miedzy_zmianami = dane_do_ruchu_npc[tmp].skok_miedzy_zmianami % 30;
+										
 									}
 									if (dane_do_ruchu_npc[tmp].pozx > dane_do_ruchu_npc[tmp].poz_docelowa_x) {
 										dane_do_ruchu_npc[tmp].pozx -= 1;
+										dane_do_ruchu_npc[tmp].skok_miedzy_zmianami++;
+										dane_do_ruchu_npc[tmp].skok_miedzy_zmianami = dane_do_ruchu_npc[tmp].skok_miedzy_zmianami % 30;
 									}
 									if (dane_do_ruchu_npc[tmp].pozy < dane_do_ruchu_npc[tmp].poz_docelowa_y) {
 										dane_do_ruchu_npc[tmp].pozy += 1;
+										dane_do_ruchu_npc[tmp].skok_miedzy_zmianami++;
+										dane_do_ruchu_npc[tmp].skok_miedzy_zmianami = dane_do_ruchu_npc[tmp].skok_miedzy_zmianami % 30;
 									}
 									if (dane_do_ruchu_npc[tmp].pozy > dane_do_ruchu_npc[tmp].poz_docelowa_y) {
 										dane_do_ruchu_npc[tmp].pozy -= 1;
+										dane_do_ruchu_npc[tmp].skok_miedzy_zmianami++;
+										dane_do_ruchu_npc[tmp].skok_miedzy_zmianami = dane_do_ruchu_npc[tmp].skok_miedzy_zmianami % 30;
 									}
 								}
 							}
@@ -548,7 +646,7 @@ int main() {
 					}
 				}
 			}
-			al_draw_bitmap(bohater, bohaterx, bohatery, 0);
+			rysowanie_postaci_w_ruchu(bohater,kierunek,skok_zamiany_bitmapy_w_ruchu,bohaterx,bohatery,ostatni_kier_bohatera);
 			//przemieszczanie podswietlenia w ekwipunku
 			if (zdarzenie.type == ALLEGRO_EVENT_KEY_DOWN && czy_ekwipunek)
 			{
@@ -634,7 +732,7 @@ int main() {
 					al_draw_bitmap_region(glowy, id * 150, 0, 150, 150, 50, 550, 0);
 				}
 				czas_aktualny = ((float)clock()- czas_startowy) / CLOCKS_PER_SEC;
-				dialogi(id, &nr_odp, &rozmowa, nr_zad,czas_aktualny,&wziecie_czasu,&wybor);
+				dialogi(czcionka_24,id, &nr_odp, &rozmowa, nr_zad,czas_aktualny,&wziecie_czasu,&wybor);
 				if (rozmowa == 0) {
 					wziecie_czasu = true;
 					dane_do_ruchu_npc[ktory_rozmawia].rozmawia = false;
@@ -674,6 +772,7 @@ int main() {
 	al_destroy_bitmap(serce);
 	al_destroy_font(czcionka_48);
 	al_destroy_font(czcionka_18);
+	al_destroy_font(czcionka_24);
 	al_destroy_bitmap(ramka_wyboru);
 	al_destroy_font(czcionka_18_cienka);
 	al_destroy_bitmap(glowy);
