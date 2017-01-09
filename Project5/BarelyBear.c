@@ -112,7 +112,7 @@ s_wspolrzedne_pola pobierz_najmniejszy(s_lista **adres_pierwszy, s_lista **adres
 s_wspolrzedne_pola wytyczenie_trasy_dla_przeciwnikow(wlasciwosci_pola_t **mapadane, s_wspolrzedne_pola pozycja, int szerokosc, int wysokosc, s_wspolrzedne_pola poz_gracza);
 void dodaj_do_listy(s_lista **adres_pierwszy, s_lista**adres_ostatni, int x, int y);
 bool poza_mapa(int wysokosc, int szerokosc, int poz_x, int poz_y);
-bool czy_jest_obok(wlasciwosci_pola_t **mapa, s_wspolrzedne_pola poz_gracza,int wysokosc, int szerokosc);
+bool czy_jest_obok(wlasciwosci_pola_t **mapa, s_wspolrzedne_pola poz_gracza, int wysokosc, int szerokosc, int nr_przeciwnika);
 void ladowanie_statystyk_przeciwnikow(przeciwnicy_statystyki_t*statystyki);
 void atak(wlasciwosci_pola_t**mapadane, int ostatni_kierunek, int poz_x, int poz_y, dane_przeciwnikow_t *przeciwnicy, int *ekwipunek, przeciwnicy_statystyki_t *statystyki_przeciwnikow, przedmiot_t *stat_przedmiotow);
 
@@ -268,6 +268,12 @@ int main() {
 		wczytanie_z_pliku(dane_do_mapy, mapadane, wysokosc, szerokosc);
 		mapadane[1][10].przeciwnik = 1;
 		mapadane[3][11].przeciwnik = 2;
+		mapadane[10][11].przeciwnik = 3;
+		mapadane[15][15].npc = 3;
+		mapadane[24][21].npc = 3;
+		mapadane[30][21].npc = 2;
+		mapadane[23][41].npc = 1;
+		mapadane[3][4].npc = 1;
 		ilosc_rysowanych_npc = 0;
 		//zliczenie ilosci rysowanych npc
 		for (i = 0; i < wysokosc; i++) {
@@ -423,7 +429,7 @@ int main() {
 						}
 						break;
 					case ALLEGRO_KEY_ENTER:
-						atak(mapadane, ostatni_kier_bohatera, aktualna_pozycjax, aktualna_pozycjay, dane_przeciwnikow_wartosci, przedmioty_zalozone, statystyki_przec, typy_przedmiotow_tab);
+						atak(mapadane, ostatni_kier_bohatera, aktualna_pozycjax, aktualna_pozycjay, dane_przeciwnikow_wartosci, przedmioty_zalozone, statystyki_przec, opisy_przedmiotow);
 						break;
 					}
 				}
@@ -630,7 +636,7 @@ int main() {
 											mapadane[dane_przeciwnikow_wartosci[tmp].poz_y / misjednostka*-1][dane_przeciwnikow_wartosci[tmp].poz_x / misjednostka*-1].przeciwnik_id = mapadane[i][j].przeciwnik_id;
 											mapadane[i][j].przeciwnik_id = x;
 										}
-										if (!czy_jest_obok(mapadane, poz_gracza, wysokosc, szerokosc)) {
+										if (!czy_jest_obok(mapadane, poz_gracza, wysokosc, szerokosc,tmp+1)) {
 											pomoc = wytyczenie_trasy_dla_przeciwnikow(mapadane, aktualna_poz_przeciwnika, szerokosc, wysokosc, poz_gracza);
 											if (pomoc.x != 10000 && pomoc.y != 10000 && pomoc.x != xdocelowe&&pomoc.y != ydocelowe) {
 												dane_przeciwnikow_wartosci[tmp].poz_docelowa_x = (pomoc.x*misjednostka*-1);
@@ -683,6 +689,9 @@ int main() {
 											dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami = dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami % 30;
 										}
 									}
+								}
+								else {
+									mapadane[i][j].przeciwnik_id = 0;
 								}
 							}
 						}
@@ -1244,14 +1253,14 @@ bool poza_mapa(int wysokosc, int szerokosc, int poz_x, int poz_y) {
 	}
 	return false;
 }
-bool czy_jest_obok(wlasciwosci_pola_t **mapa,s_wspolrzedne_pola poz_gracza,int wysokosc,int szerokosc) {
+bool czy_jest_obok(wlasciwosci_pola_t **mapa,s_wspolrzedne_pola poz_gracza,int wysokosc,int szerokosc,int nr_przeciwnika) {
 	int i, j,badane_x,badane_y;
 	for (i = -1; i <= 1; i++) {
 		for (j = -1; j <= 1; j++) {
 			badane_x = poz_gracza.x + j;
 			badane_y = poz_gracza.y + i;
 			if (!poza_mapa(wysokosc, szerokosc, badane_x, badane_y)) {
-				if (mapa[badane_y][badane_x].przeciwnik_id != 0) {
+				if (mapa[badane_y][badane_x].przeciwnik_id == nr_przeciwnika) {
 					return true;
 				}
 			}
@@ -1274,13 +1283,19 @@ void ladowanie_statystyk_przeciwnikow(przeciwnicy_statystyki_t*statystyki) {
 	statystyki[2].predkosc = 1;
 }
 void atak(wlasciwosci_pola_t**mapadane,int ostatni_kierunek,int poz_x,int poz_y,dane_przeciwnikow_t *przeciwnicy,int *ekwipunek,przeciwnicy_statystyki_t *statystyki_przeciwnikow,przedmiot_t *stat_przedmiotow){
-	int atak_bohatera = stat_przedmiotow[ekwipunek[0] - 1].atak;
+	int atak_bohatera;
+	if (ekwipunek[0] == 0) {
+		atak_bohatera = 0;
+	}
+	else {
+		atak_bohatera = stat_przedmiotow[ekwipunek[0] - 1].atak;
+	}
 	switch (ostatni_kierunek) {
 	case 0:
 		if (mapadane[poz_y-1][poz_x].przeciwnik_id!=0) {
 			if (przeciwnicy[mapadane[poz_y - 1][poz_x].przeciwnik_id - 1].zdrowie > 0) {
 				if (atak_bohatera - statystyki_przeciwnikow[przeciwnicy[mapadane[poz_y - 1][poz_x].przeciwnik_id - 1].nr_przeciwnika - 1].obrona > 0) {
-					przeciwnicy[mapadane[poz_y - 1][poz_x].przeciwnik_id - 1].zdrowie - atak_bohatera + statystyki_przeciwnikow[przeciwnicy[mapadane[poz_y - 1][poz_x].przeciwnik_id - 1].nr_przeciwnika - 1].obrona;
+					przeciwnicy[mapadane[poz_y - 1][poz_x].przeciwnik_id - 1].zdrowie -= atak_bohatera + statystyki_przeciwnikow[przeciwnicy[mapadane[poz_y - 1][poz_x].przeciwnik_id - 1].nr_przeciwnika - 1].obrona;
 				}
 			}
 		}
@@ -1289,7 +1304,8 @@ void atak(wlasciwosci_pola_t**mapadane,int ostatni_kierunek,int poz_x,int poz_y,
 		if (mapadane[poz_y + 1][poz_x].przeciwnik_id != 0) {
 			if (przeciwnicy[mapadane[poz_y + 1][poz_x].przeciwnik_id - 1].zdrowie > 0) {
 				if (atak_bohatera - statystyki_przeciwnikow[przeciwnicy[mapadane[poz_y + 1][poz_x].przeciwnik_id - 1].nr_przeciwnika - 1].obrona > 0) {
-					przeciwnicy[mapadane[poz_y + 1][poz_x].przeciwnik_id - 1].zdrowie - atak_bohatera + statystyki_przeciwnikow[przeciwnicy[mapadane[poz_y + 1][poz_x].przeciwnik_id - 1].nr_przeciwnika - 1].obrona;
+					przeciwnicy[mapadane[poz_y + 1][poz_x].przeciwnik_id - 1].zdrowie -= atak_bohatera + statystyki_przeciwnikow[przeciwnicy[mapadane[poz_y + 1][poz_x].przeciwnik_id - 1].nr_przeciwnika - 1].obrona;
+					
 				}
 			}
 		}
@@ -1298,7 +1314,8 @@ void atak(wlasciwosci_pola_t**mapadane,int ostatni_kierunek,int poz_x,int poz_y,
 		if (mapadane[poz_y][poz_x - 1].przeciwnik_id != 0) {
 			if (przeciwnicy[mapadane[poz_y][poz_x - 1].przeciwnik_id - 1].zdrowie > 0) {
 				if (atak_bohatera - statystyki_przeciwnikow[przeciwnicy[mapadane[poz_y][poz_x - 1].przeciwnik_id - 1].nr_przeciwnika - 1].obrona > 0) {
-					przeciwnicy[mapadane[poz_y][poz_x - 1].przeciwnik_id - 1].zdrowie - atak_bohatera + statystyki_przeciwnikow[przeciwnicy[mapadane[poz_y][poz_x - 1].przeciwnik_id - 1].nr_przeciwnika - 1].obrona;
+					przeciwnicy[mapadane[poz_y][poz_x - 1].przeciwnik_id - 1].zdrowie -= atak_bohatera + statystyki_przeciwnikow[przeciwnicy[mapadane[poz_y][poz_x - 1].przeciwnik_id - 1].nr_przeciwnika - 1].obrona;
+					
 				}
 			}
 		}
@@ -1307,7 +1324,8 @@ void atak(wlasciwosci_pola_t**mapadane,int ostatni_kierunek,int poz_x,int poz_y,
 		if (mapadane[poz_y][poz_x + 1].przeciwnik_id != 0) {
 			if (przeciwnicy[mapadane[poz_y][poz_x + 1].przeciwnik_id - 1].zdrowie > 0) {
 				if (atak_bohatera - statystyki_przeciwnikow[przeciwnicy[mapadane[poz_y][poz_x + 1].przeciwnik_id - 1].nr_przeciwnika - 1].obrona > 0) {
-					przeciwnicy[mapadane[poz_y][poz_x + 1].przeciwnik_id - 1].zdrowie - atak_bohatera + statystyki_przeciwnikow[przeciwnicy[mapadane[poz_y][poz_x + 1].przeciwnik_id - 1].nr_przeciwnika - 1].obrona;
+					przeciwnicy[mapadane[poz_y][poz_x + 1].przeciwnik_id - 1].zdrowie -= atak_bohatera + statystyki_przeciwnikow[przeciwnicy[mapadane[poz_y][poz_x + 1].przeciwnik_id - 1].nr_przeciwnika - 1].obrona;
+					
 				}
 			}
 		}
