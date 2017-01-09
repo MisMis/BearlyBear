@@ -44,9 +44,18 @@ struct dane_przeciwnikow {
 	int skok_miedzy_zmianami;
 	int kierunek;
 	int ostatni_kierunek;
+	int zdrowie;
+	clock_t czas_ataku;
+};
+struct przeciwnicy_statystyki {
+	int atak;
+	int obrona;
+	int predkosc;
 };
 struct przedmiot {
 	int typ;
+	int atak;
+	int obrona;
 	char nazwa[20];
 	char opis[50];
 };
@@ -84,6 +93,7 @@ typedef struct dane_npc dane_npc_t;
 typedef struct przedmiot przedmiot_t;
 typedef struct typy_przedmiotow typy_przedmiotow_t;
 typedef struct dane_przeciwnikow dane_przeciwnikow_t;
+typedef struct przeciwnicy_statystyki przeciwnicy_statystyki_t;
 
 void czytanie_nazw_npc(char **nazwy);
 void czytanie_nazw_przeciwnikow(char **nazwy);
@@ -103,11 +113,15 @@ s_wspolrzedne_pola wytyczenie_trasy_dla_przeciwnikow(wlasciwosci_pola_t **mapada
 void dodaj_do_listy(s_lista **adres_pierwszy, s_lista**adres_ostatni, int x, int y);
 bool poza_mapa(int wysokosc, int szerokosc, int poz_x, int poz_y);
 bool czy_jest_obok(wlasciwosci_pola_t **mapa, s_wspolrzedne_pola poz_gracza,int wysokosc, int szerokosc);
+void ladowanie_statystyk_przeciwnikow(przeciwnicy_statystyki_t*statystyki);
+void atak(wlasciwosci_pola_t**mapadane, int ostatni_kierunek, int poz_x, int poz_y, dane_przeciwnikow_t *przeciwnicy, int *ekwipunek, przeciwnicy_statystyki_t *statystyki_przeciwnikow, przedmiot_t *stat_przedmiotow);
+
 
 int main() {
 	int mapax = 0;
 	int mapay = 0;
 	int tmp;
+	int predkosc_bohatera = 5;
 	int przerwa_miedzy_przejsciami_npc=3;
 	int zasiegnpc = 3;
 	int bohaterx = 350;
@@ -131,10 +145,11 @@ int main() {
 	int do_wyboru_dialogu;
 	int ostatni_kier_bohatera=1,kierunek=5;
 	int skok_zamiany_bitmapy_w_ruchu=0;
+	przeciwnicy_statystyki_t statystyki_przec[3];
 	s_wspolrzedne_pola pomoc, aktualna_poz_przeciwnika, poz_gracza;
-	char *nazwy_plikow[2][2];
-	char *nazwy_npc[2];
-	char *nazwy_przeciwnikow[1];
+	char *nazwy_plikow[8][2];
+	char *nazwy_npc[3];
+	char *nazwy_przeciwnikow[3];
 	int rozmowa,id,ktory_rozmawia;
 	float czas_aktualny;
 	clock_t czas_startowy;
@@ -210,6 +225,7 @@ int main() {
 	dodaj_przedmiot_do_ekwipunku(przedmioty_w_ekwipunku, 4);
 	dodaj_przedmiot_do_ekwipunku(przedmioty_w_ekwipunku, 1);
 	dodaj_przedmiot_do_ekwipunku(przedmioty_w_ekwipunku, 1);
+	ladowanie_statystyk_przeciwnikow(statystyki_przec);
 	while (!zakonczenie) {
 		ALLEGRO_BITMAP **NPC = NULL;
 		ALLEGRO_BITMAP *mapa = NULL;
@@ -219,6 +235,7 @@ int main() {
 		fscanf_s(dane_do_mapy, "%i", &wysokosc);
 		fscanf_s(dane_do_mapy, "%i", &szerokosc);
 		fscanf_s(dane_do_mapy, "%i", &ilosc_npc);
+		fscanf_s(dane_do_mapy, "%i", &ilosc_wrogow);
 		fscanf_s(dane_do_mapy, "%i", &xspawnu);
 		fscanf_s(dane_do_mapy, "%i", &yspawnu);
 		//zmiana miejsc pojawiania siê potrzebna do przejsc miedzy mapami
@@ -242,7 +259,6 @@ int main() {
 				mapadane[i][j].przeciwnik = 0;
 			}
 		}
-		mapadane[14][8].przeciwnik = 1;
 		if (ilosc_npc != 0) {
 			NPC = (ALLEGRO_BITMAP**)malloc(ilosc_npc * sizeof(ALLEGRO_BITMAP*));
 		}
@@ -250,6 +266,8 @@ int main() {
 			wrogowie= (ALLEGRO_BITMAP**)malloc(ilosc_wrogow * sizeof(ALLEGRO_BITMAP*));
 		}
 		wczytanie_z_pliku(dane_do_mapy, mapadane, wysokosc, szerokosc);
+		mapadane[1][10].przeciwnik = 1;
+		mapadane[3][11].przeciwnik = 2;
 		ilosc_rysowanych_npc = 0;
 		//zliczenie ilosci rysowanych npc
 		for (i = 0; i < wysokosc; i++) {
@@ -317,7 +335,9 @@ int main() {
 					dane_przeciwnikow_wartosci[tmp].poz_docelowa_y = dane_przeciwnikow_wartosci[tmp].poz_y;
 					dane_przeciwnikow_wartosci[tmp].ostatni_kierunek = 1;
 					dane_przeciwnikow_wartosci[tmp].kierunek = 5;
+					dane_przeciwnikow_wartosci[tmp].zdrowie = 100;
 					dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami = 0;
+					dane_przeciwnikow_wartosci[tmp].czas_ataku = clock();
 				}
 
 			}
@@ -402,45 +422,56 @@ int main() {
 							do_wyboru_dialogu = 1;
 						}
 						break;
+					case ALLEGRO_KEY_ENTER:
+						atak(mapadane, ostatni_kier_bohatera, aktualna_pozycjax, aktualna_pozycjay, dane_przeciwnikow_wartosci, przedmioty_zalozone, statystyki_przec, typy_przedmiotow_tab);
+						break;
 					}
 				}
 
 			if (ruch && mapay==ydocelowe  && mapax==xdocelowe) {
 				kierunek = 5;
-				if (ydocelowe == mapay && przyciski[0] == true && aktualna_pozycjay > yspawnu) {
-					if (!kolizja(aktualna_pozycjax,aktualna_pozycjay-1,mapadane)) {
-						ydocelowe += misjednostka;
-						ostatni_kier_bohatera = 0;
-						kierunek = 0;
-						skok_zamiany_bitmapy_w_ruchu = 0;
+				if (ydocelowe == mapay && przyciski[0] == true) {
+					if (!poza_mapa(wysokosc, szerokosc, aktualna_pozycjax, aktualna_pozycjay - 1)) {
+						if(!kolizja(aktualna_pozycjax, aktualna_pozycjay - 1, mapadane)) {
+							ydocelowe += misjednostka;
+							ostatni_kier_bohatera = 0;
+							kierunek = 0;
+							skok_zamiany_bitmapy_w_ruchu = 0;
+						}
 					}
 				}
-				if (ydocelowe == mapay && przyciski[1] == true && aktualna_pozycjay < wysokosc) {
-					if (!kolizja(aktualna_pozycjax, aktualna_pozycjay + 1, mapadane)) {
-						ydocelowe -= misjednostka;
-						ostatni_kier_bohatera = 1;
-						kierunek = 1;
-						skok_zamiany_bitmapy_w_ruchu = 0;
+				if (ydocelowe == mapay && przyciski[1] == true) {
+					if (!poza_mapa(wysokosc, szerokosc, aktualna_pozycjax, aktualna_pozycjay + 1)) {
+						if (!kolizja(aktualna_pozycjax, aktualna_pozycjay + 1, mapadane)) {
+							ydocelowe -= misjednostka;
+							ostatni_kier_bohatera = 1;
+							kierunek = 1;
+							skok_zamiany_bitmapy_w_ruchu = 0;
+						}
 					}
 				}
-				if (xdocelowe == mapax && przyciski[2] == true && aktualna_pozycjax > xspawnu) {
-					if (!kolizja(aktualna_pozycjax-1, aktualna_pozycjay, mapadane)) {
-						xdocelowe += misjednostka;
-						ostatni_kier_bohatera = 2;
-						kierunek = 2;
-						skok_zamiany_bitmapy_w_ruchu = 0;
+				if (xdocelowe == mapax && przyciski[2] == true) {
+					if (!poza_mapa(wysokosc, szerokosc, aktualna_pozycjax - 1, aktualna_pozycjay)) {
+						if (!kolizja(aktualna_pozycjax - 1, aktualna_pozycjay, mapadane)) {
+							xdocelowe += misjednostka;
+							ostatni_kier_bohatera = 2;
+							kierunek = 2;
+							skok_zamiany_bitmapy_w_ruchu = 0;
+						}
 					}
 				}
-				if (xdocelowe == mapax && przyciski[3] == true && aktualna_pozycjax < szerokosc) {
-					if (!kolizja(aktualna_pozycjax+1, aktualna_pozycjay, mapadane)) {
-						xdocelowe -= misjednostka;
-						ostatni_kier_bohatera = 3;
-						kierunek = 3;
-						skok_zamiany_bitmapy_w_ruchu = 0;
+				if (xdocelowe == mapax && przyciski[3] == true) {
+					if (!poza_mapa(wysokosc, szerokosc, aktualna_pozycjax + 1, aktualna_pozycjay)) {
+						if (!kolizja(aktualna_pozycjax + 1, aktualna_pozycjay, mapadane)) {
+							xdocelowe -= misjednostka;
+							ostatni_kier_bohatera = 3;
+							kierunek = 3;
+							skok_zamiany_bitmapy_w_ruchu = 0;
+						}
 					}
 				}
 			}
-			//printf_s("x  %i       y %i   \n",aktualna_pozycjax, aktualna_pozycjay);
+			printf_s("x  %i       y %i   \n",aktualna_pozycjax, aktualna_pozycjay);
 			if (mapadane[aktualna_pozycjay][aktualna_pozycjax].przejscie_mapy !=0) {
 				zmianamapy = true;
 				if (numerbitmapy == 0) {
@@ -456,23 +487,23 @@ int main() {
 			}
 			if (zdarzenie.type == ALLEGRO_EVENT_TIMER) {
 				if (mapay < ydocelowe) {
-					mapay += 2;
-					skok_zamiany_bitmapy_w_ruchu += 2;
+					mapay += predkosc_bohatera;
+					skok_zamiany_bitmapy_w_ruchu += predkosc_bohatera;
 					skok_zamiany_bitmapy_w_ruchu=skok_zamiany_bitmapy_w_ruchu % 30;
 				}
 				if (mapay > ydocelowe) {
-					mapay -= 2;
-					skok_zamiany_bitmapy_w_ruchu += 2;
+					mapay -= predkosc_bohatera;
+					skok_zamiany_bitmapy_w_ruchu += predkosc_bohatera;
 					skok_zamiany_bitmapy_w_ruchu = skok_zamiany_bitmapy_w_ruchu % 30;
 				}
 				if (mapax < xdocelowe) {
-					mapax += 2;
-					skok_zamiany_bitmapy_w_ruchu += 2;
+					mapax += predkosc_bohatera;
+					skok_zamiany_bitmapy_w_ruchu += predkosc_bohatera;
 					skok_zamiany_bitmapy_w_ruchu = skok_zamiany_bitmapy_w_ruchu % 30;
 				}
 				if (mapax > xdocelowe) {
-					mapax -= 2;
-					skok_zamiany_bitmapy_w_ruchu += 2;
+					mapax -= predkosc_bohatera;
+					skok_zamiany_bitmapy_w_ruchu += predkosc_bohatera;
 					skok_zamiany_bitmapy_w_ruchu = skok_zamiany_bitmapy_w_ruchu % 30;
 				}
 			}
@@ -586,63 +617,71 @@ int main() {
 							}
 							if (mapadane[i][j].przeciwnik_id != 0) {
 								tmp = mapadane[i][j].przeciwnik_id - 1;
-								rysowanie_postaci_w_ruchu(wrogowie[dane_przeciwnikow_wartosci[tmp].nr_przeciwnika-1], dane_przeciwnikow_wartosci[tmp].kierunek, dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami, dane_przeciwnikow_wartosci[tmp].poz_x*-1 + mapax, dane_przeciwnikow_wartosci[tmp].poz_y*-1 + mapay, dane_przeciwnikow_wartosci[tmp].ostatni_kierunek);
-								if (dane_przeciwnikow_wartosci[tmp].poz_x == dane_przeciwnikow_wartosci[tmp].poz_docelowa_x&&dane_przeciwnikow_wartosci[tmp].poz_y == dane_przeciwnikow_wartosci[tmp].poz_docelowa_y) {
-									dane_przeciwnikow_wartosci[tmp].kierunek = 4;
-									aktualna_poz_przeciwnika.x = dane_przeciwnikow_wartosci[tmp].poz_x / misjednostka*-1;
-									aktualna_poz_przeciwnika.y = dane_przeciwnikow_wartosci[tmp].poz_y / misjednostka*-1;
-									poz_gracza.x = aktualna_pozycjax;
-									poz_gracza.y = aktualna_pozycjay;
-									if (dane_przeciwnikow_wartosci[tmp].poz_x / misjednostka*-1 != j || dane_przeciwnikow_wartosci[tmp].poz_y / misjednostka*-1 != i) {
-										x = mapadane[dane_przeciwnikow_wartosci[tmp].poz_y / misjednostka*-1][dane_przeciwnikow_wartosci[tmp].poz_x / misjednostka*-1].przeciwnik_id;
-										mapadane[dane_przeciwnikow_wartosci[tmp].poz_y / misjednostka*-1][dane_przeciwnikow_wartosci[tmp].poz_x / misjednostka*-1].przeciwnik_id = mapadane[i][j].przeciwnik_id;
-										mapadane[i][j].przeciwnik_id = x;
-									}
-									if (!czy_jest_obok(mapadane,poz_gracza,wysokosc,szerokosc)) {
-										pomoc = wytyczenie_trasy_dla_przeciwnikow(mapadane, aktualna_poz_przeciwnika, szerokosc, wysokosc, poz_gracza);
-										if (pomoc.x!=10000 && pomoc.y!=10000) {
-											dane_przeciwnikow_wartosci[tmp].poz_docelowa_x = (pomoc.x*misjednostka*-1);
-											dane_przeciwnikow_wartosci[tmp].poz_docelowa_y = (pomoc.y*misjednostka*-1);
-											if (dane_przeciwnikow_wartosci[tmp].poz_x < dane_przeciwnikow_wartosci[tmp].poz_docelowa_x) {
-												dane_przeciwnikow_wartosci[tmp].kierunek = 2;
-												dane_przeciwnikow_wartosci[tmp].ostatni_kierunek = 2;
+								if (dane_przeciwnikow_wartosci[tmp].zdrowie > 0) {
+									rysowanie_postaci_w_ruchu(wrogowie[dane_przeciwnikow_wartosci[tmp].nr_przeciwnika - 1], dane_przeciwnikow_wartosci[tmp].kierunek, dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami, dane_przeciwnikow_wartosci[tmp].poz_x*-1 + mapax, dane_przeciwnikow_wartosci[tmp].poz_y*-1 + mapay, dane_przeciwnikow_wartosci[tmp].ostatni_kierunek);
+									if (dane_przeciwnikow_wartosci[tmp].poz_x == dane_przeciwnikow_wartosci[tmp].poz_docelowa_x&&dane_przeciwnikow_wartosci[tmp].poz_y == dane_przeciwnikow_wartosci[tmp].poz_docelowa_y) {
+										dane_przeciwnikow_wartosci[tmp].kierunek = 4;
+										aktualna_poz_przeciwnika.x = dane_przeciwnikow_wartosci[tmp].poz_x / misjednostka*-1;
+										aktualna_poz_przeciwnika.y = dane_przeciwnikow_wartosci[tmp].poz_y / misjednostka*-1;
+										poz_gracza.x = aktualna_pozycjax;
+										poz_gracza.y = aktualna_pozycjay;
+										if (dane_przeciwnikow_wartosci[tmp].poz_x / misjednostka*-1 != j || dane_przeciwnikow_wartosci[tmp].poz_y / misjednostka*-1 != i) {
+											x = mapadane[dane_przeciwnikow_wartosci[tmp].poz_y / misjednostka*-1][dane_przeciwnikow_wartosci[tmp].poz_x / misjednostka*-1].przeciwnik_id;
+											mapadane[dane_przeciwnikow_wartosci[tmp].poz_y / misjednostka*-1][dane_przeciwnikow_wartosci[tmp].poz_x / misjednostka*-1].przeciwnik_id = mapadane[i][j].przeciwnik_id;
+											mapadane[i][j].przeciwnik_id = x;
+										}
+										if (!czy_jest_obok(mapadane, poz_gracza, wysokosc, szerokosc)) {
+											pomoc = wytyczenie_trasy_dla_przeciwnikow(mapadane, aktualna_poz_przeciwnika, szerokosc, wysokosc, poz_gracza);
+											if (pomoc.x != 10000 && pomoc.y != 10000 && pomoc.x != xdocelowe&&pomoc.y != ydocelowe) {
+												dane_przeciwnikow_wartosci[tmp].poz_docelowa_x = (pomoc.x*misjednostka*-1);
+												dane_przeciwnikow_wartosci[tmp].poz_docelowa_y = (pomoc.y*misjednostka*-1);
+												if (dane_przeciwnikow_wartosci[tmp].poz_x < dane_przeciwnikow_wartosci[tmp].poz_docelowa_x) {
+													dane_przeciwnikow_wartosci[tmp].kierunek = 2;
+													dane_przeciwnikow_wartosci[tmp].ostatni_kierunek = 2;
+												}
+												if (dane_przeciwnikow_wartosci[tmp].poz_x > dane_przeciwnikow_wartosci[tmp].poz_docelowa_x) {
+													dane_przeciwnikow_wartosci[tmp].kierunek = 3;
+													dane_przeciwnikow_wartosci[tmp].ostatni_kierunek = 3;
+												}
+												if (dane_przeciwnikow_wartosci[tmp].poz_y < dane_przeciwnikow_wartosci[tmp].poz_docelowa_y) {
+													dane_przeciwnikow_wartosci[tmp].kierunek = 0;
+													dane_przeciwnikow_wartosci[tmp].ostatni_kierunek = 0;
+												}
+												if (dane_przeciwnikow_wartosci[tmp].poz_y > dane_przeciwnikow_wartosci[tmp].poz_docelowa_y) {
+													dane_przeciwnikow_wartosci[tmp].kierunek = 1;
+													dane_przeciwnikow_wartosci[tmp].ostatni_kierunek = 1;
+												}
 											}
-											if (dane_przeciwnikow_wartosci[tmp].poz_x > dane_przeciwnikow_wartosci[tmp].poz_docelowa_x) {
-												dane_przeciwnikow_wartosci[tmp].kierunek = 3;
-												dane_przeciwnikow_wartosci[tmp].ostatni_kierunek = 3;
-											}
-											if (dane_przeciwnikow_wartosci[tmp].poz_y < dane_przeciwnikow_wartosci[tmp].poz_docelowa_y) {
-												dane_przeciwnikow_wartosci[tmp].kierunek = 0;
-												dane_przeciwnikow_wartosci[tmp].ostatni_kierunek = 0;
-											}
-											if (dane_przeciwnikow_wartosci[tmp].poz_y > dane_przeciwnikow_wartosci[tmp].poz_docelowa_y) {
-												dane_przeciwnikow_wartosci[tmp].kierunek = 1;
-												dane_przeciwnikow_wartosci[tmp].ostatni_kierunek = 1;
+
+										}
+										else {
+											if (((float)clock() - dane_przeciwnikow_wartosci[tmp].czas_ataku) / CLOCKS_PER_SEC > 1.5) {
+												dane_przeciwnikow_wartosci[tmp].czas_ataku = clock();
+												zdrowie -= statystyki_przec[tmp].atak;
 											}
 										}
-
 									}
-								}
-								if (zdarzenie.type == ALLEGRO_EVENT_TIMER) {
-									if (dane_przeciwnikow_wartosci[tmp].poz_x < dane_przeciwnikow_wartosci[tmp].poz_docelowa_x) {
-										dane_przeciwnikow_wartosci[tmp].poz_x += 2;
-										dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami+=2;
-										dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami = dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami % 30;
-									}
-									if (dane_przeciwnikow_wartosci[tmp].poz_x > dane_przeciwnikow_wartosci[tmp].poz_docelowa_x) {
-										dane_przeciwnikow_wartosci[tmp].poz_x -= 2;
-										dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami +=2;
-										dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami = dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami % 30;
-									}
-									if (dane_przeciwnikow_wartosci[tmp].poz_y < dane_przeciwnikow_wartosci[tmp].poz_docelowa_y) {
-										dane_przeciwnikow_wartosci[tmp].poz_y += 2;
-										dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami +=2;
-										dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami = dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami % 30;
-									}
-									if (dane_przeciwnikow_wartosci[tmp].poz_y > dane_przeciwnikow_wartosci[tmp].poz_docelowa_y) {
-										dane_przeciwnikow_wartosci[tmp].poz_y -= 2;
-										dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami +=2;
-										dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami = dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami % 30;
+									if (zdarzenie.type == ALLEGRO_EVENT_TIMER) {
+										if (dane_przeciwnikow_wartosci[tmp].poz_x < dane_przeciwnikow_wartosci[tmp].poz_docelowa_x) {
+											dane_przeciwnikow_wartosci[tmp].poz_x += statystyki_przec[tmp].predkosc;
+											dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami += statystyki_przec[tmp].predkosc;
+											dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami = dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami % 30;
+										}
+										if (dane_przeciwnikow_wartosci[tmp].poz_x > dane_przeciwnikow_wartosci[tmp].poz_docelowa_x) {
+											dane_przeciwnikow_wartosci[tmp].poz_x -= statystyki_przec[tmp].predkosc;
+											dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami += statystyki_przec[tmp].predkosc;
+											dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami = dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami % 30;
+										}
+										if (dane_przeciwnikow_wartosci[tmp].poz_y < dane_przeciwnikow_wartosci[tmp].poz_docelowa_y) {
+											dane_przeciwnikow_wartosci[tmp].poz_y += statystyki_przec[tmp].predkosc;
+											dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami += statystyki_przec[tmp].predkosc;
+											dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami = dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami % 30;
+										}
+										if (dane_przeciwnikow_wartosci[tmp].poz_y > dane_przeciwnikow_wartosci[tmp].poz_docelowa_y) {
+											dane_przeciwnikow_wartosci[tmp].poz_y -= statystyki_przec[tmp].predkosc;
+											dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami += statystyki_przec[tmp].predkosc;
+											dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami = dane_przeciwnikow_wartosci[tmp].skok_miedzy_zmianami % 30;
+										}
 									}
 								}
 							}
@@ -818,31 +857,38 @@ void ladowanie_opisow_przedmiotow(przedmiot_t *tablica) {
 	//wiadro z woda
 	strcpy_s(tablica[0].nazwa,20,"wiadro z woda");
 	tablica[0].typ = 4;
+	tablica[0].atak = 0;
 	strcpy_s(tablica[0].opis, 50, "wiadro pelne wody");
 	//miecz
 	strcpy_s(tablica[1].nazwa, 20, "miecz");
 	tablica[1].typ = 1;
 	strcpy_s(tablica[1].opis, 50, "bardzo ostry miecz");
+	tablica[1].atak = 100;
 	//puste wiadro
 	strcpy_s(tablica[2].nazwa, 20, "puste wiadro");
 	tablica[2].typ = 4;
 	strcpy_s(tablica[2].opis, 50, "puste wiadro");
+	tablica[2].atak = 0;
 	//noz
 	strcpy_s(tablica[3].nazwa, 20, "noz");
 	tablica[3].typ = 1;
 	strcpy_s(tablica[3].opis, 50, "ostry noz");
+	tablica[3].atak = 2;
 	//widelec
 	strcpy_s(tablica[4].nazwa, 20, "widelec");
 	tablica[4].typ = 1;
 	strcpy_s(tablica[4].opis, 50, "zazwyczaj sluzy do jedzenia");
+	tablica[4].atak = 1;
 	//moneta
 	strcpy_s(tablica[5].nazwa, 20,"mismoneta");
 	tablica[5].typ = 5;
 	strcpy_s(tablica[5].opis, 50, "srodek platniczy");
+	tablica[5].atak = 0;
 	//jedzenie
 	strcpy_s(tablica[6].nazwa, 20, "miodek");
 	tablica[6].typ = 6;
 	strcpy_s(tablica[6].opis, 50, "bardzo smaczny miodek");
+	tablica[6].atak = 0;
 }
 void rysowanie_postaci_w_ruchu(ALLEGRO_BITMAP *obraz, int kierunek, int pix, int poz_x, int poz_y, int ostatni_kierunek) {
 	int granica_skoku = 15;
@@ -895,32 +941,54 @@ void rysowanie_postaci_w_ruchu(ALLEGRO_BITMAP *obraz, int kierunek, int pix, int
 }
 void wczytanie_z_pliku(FILE *wyjscie, wlasciwosci_pola_t **dane, int wysokosc, int szerokosc) {
 	int i, j;
-	int pomoc[3];
+	int pomoc;
 	for (j = 0; j < wysokosc; j++) {
 		for (i = 0; i < szerokosc; i++) {
-			fscanf_s(wyjscie, "%i", &pomoc[0]);
-			fscanf_s(wyjscie, "%i", &pomoc[1]);
-			fscanf_s(wyjscie, "%i", &pomoc[2]);
-			dane[j][i].przeszkoda = (bool)pomoc[0];
-			dane[j][i].npc = pomoc[1];
-			dane[j][i].przejscie_mapy = pomoc[2];
+			fscanf_s(wyjscie, "%i", &pomoc);
+			dane[j][i].przeszkoda = (bool)pomoc;
+			fscanf_s(wyjscie, "%i", &dane[j][i].npc);
+			fscanf_s(wyjscie, "%i", &dane[j][i].przejscie_mapy);
+			fscanf_s(wyjscie, "%i", &dane[j][i].przeciwnik);
 		}
 	}
 }
 void czytanie_nazw(char *nazwy[][2]) {
 
 	nazwy[0][0] = "data/mapy/miasto.png";
-	nazwy[0][1] = "data/mapy/mapa.leafe";
-	nazwy[1][0] = "data/mapy/wnetrze.png";
-	nazwy[1][1] = "data/mapy/wnetrze.leafe";
+	nazwy[0][1] = "data/mapy/miasto.leafe";
+
+	nazwy[1][0] = "data/mapy/wnetrze_dom_starca.png";
+	nazwy[1][1] = "data/mapy/wnetrze_dom_starca.leafe";
+
+	nazwy[2][0] = "data/mapy/domAlbrehta.png";
+	nazwy[2][1] = "data/mapy/domAlbrehta.leafe";
+
+	nazwy[3][0] = "data/mapy/karczma.png";
+	nazwy[3][1] = "data/mapy/karczma.leafe";
+
+	nazwy[4][0] = "data/mapy/piwnica_szczury.png";
+	nazwy[4][1] = "data/mapy/piwnica_szczury.leafe";
+
+	nazwy[5][0] = "data/mapy/wnetrze_dom_mieszkalny1.png";
+	nazwy[5][1] = "data/mapy/wnetrze_dom_mieszkalny1.leafe";
+
+	nazwy[6][0] = "data/mapy/wnetrze_dom_mieszkalny2.png";
+	nazwy[6][1] = "data/mapy/wnetrze_dom_mieszkalny2.leafe";
+
+	nazwy[7][0] = "data/mapy/wnetrze_dom_mieszkalny3.png";
+	nazwy[7][1] = "data/mapy/wnetrze_dom_mieszkalny3.leafe";
 
 }
 void czytanie_nazw_przeciwnikow(char **nazwy) {
 	nazwy[0] = "data/postacie/wilk.png";
+	nazwy[1] = "data/postacie/szczur.png";
+	nazwy[2] = "data/postacie/zywiolak.png";
 }
 void czytanie_nazw_npc(char **nazwy) {
 	nazwy[0] = "data/postacie/mieszkaniec.png";
 	nazwy[1] = "data/postacie/starzec.png";
+	nazwy[2] = "data/postacie/mieszkaniec2.png";
+
 }
 bool dodaj_przedmiot_do_ekwipunku(int ekwipunek[][3], int id_przedmiotu) {
 	int i, j;
@@ -935,7 +1003,7 @@ bool dodaj_przedmiot_do_ekwipunku(int ekwipunek[][3], int id_przedmiotu) {
 	return false;
 }
 bool kolizja(int poz_x, int poz_y, wlasciwosci_pola_t **struktura_mapy) {
-	if (struktura_mapy[poz_y][poz_x].przeszkoda == true || struktura_mapy[poz_y][poz_x].npc_id != 0 || struktura_mapy[poz_y][poz_x].przyszle_poz_npc == true||struktura_mapy[poz_y][poz_x].przeciwnik_id!=0) {
+	if (struktura_mapy[poz_y][poz_x].przeszkoda == true || struktura_mapy[poz_y][poz_x].npc_id != 0 || struktura_mapy[poz_y][poz_x].przyszle_poz_npc == true||struktura_mapy[poz_y][poz_x].przeciwnik_id!=0 || struktura_mapy[poz_y][poz_x].przyszle_poz_przeciwnikow == true) {
 		return true;
 	}
 	return false;
@@ -1171,7 +1239,7 @@ s_wspolrzedne_pola wytyczenie_trasy_dla_przeciwnikow(wlasciwosci_pola_t **mapada
 	}
 }
 bool poza_mapa(int wysokosc, int szerokosc, int poz_x, int poz_y) {
-	if (poz_x<0 || poz_x>szerokosc || poz_y<0 || poz_y>wysokosc) {
+	if (poz_x<0 || poz_x>=szerokosc || poz_y<0 || poz_y>=wysokosc) {
 		return true;
 	}
 	return false;
@@ -1190,5 +1258,61 @@ bool czy_jest_obok(wlasciwosci_pola_t **mapa,s_wspolrzedne_pola poz_gracza,int w
 		}
 	}
 	return false;
+}
+void ladowanie_statystyk_przeciwnikow(przeciwnicy_statystyki_t*statystyki) {
+	//wilk
+	statystyki[0].atak = 2;
+	statystyki[0].obrona = 2;
+	statystyki[0].predkosc = 2;
+	//szczur
+	statystyki[1].atak = 1;
+	statystyki[1].obrona = 1;
+	statystyki[1].predkosc = 1;
+	//zywiolak
+	statystyki[2].atak = 10000;
+	statystyki[2].obrona = 10000;
+	statystyki[2].predkosc = 1;
+}
+void atak(wlasciwosci_pola_t**mapadane,int ostatni_kierunek,int poz_x,int poz_y,dane_przeciwnikow_t *przeciwnicy,int *ekwipunek,przeciwnicy_statystyki_t *statystyki_przeciwnikow,przedmiot_t *stat_przedmiotow){
+	int atak_bohatera = stat_przedmiotow[ekwipunek[0] - 1].atak;
+	switch (ostatni_kierunek) {
+	case 0:
+		if (mapadane[poz_y-1][poz_x].przeciwnik_id!=0) {
+			if (przeciwnicy[mapadane[poz_y - 1][poz_x].przeciwnik_id - 1].zdrowie > 0) {
+				if (atak_bohatera - statystyki_przeciwnikow[przeciwnicy[mapadane[poz_y - 1][poz_x].przeciwnik_id - 1].nr_przeciwnika - 1].obrona > 0) {
+					przeciwnicy[mapadane[poz_y - 1][poz_x].przeciwnik_id - 1].zdrowie - atak_bohatera + statystyki_przeciwnikow[przeciwnicy[mapadane[poz_y - 1][poz_x].przeciwnik_id - 1].nr_przeciwnika - 1].obrona;
+				}
+			}
+		}
+		break;
+	case 1:
+		if (mapadane[poz_y + 1][poz_x].przeciwnik_id != 0) {
+			if (przeciwnicy[mapadane[poz_y + 1][poz_x].przeciwnik_id - 1].zdrowie > 0) {
+				if (atak_bohatera - statystyki_przeciwnikow[przeciwnicy[mapadane[poz_y + 1][poz_x].przeciwnik_id - 1].nr_przeciwnika - 1].obrona > 0) {
+					przeciwnicy[mapadane[poz_y + 1][poz_x].przeciwnik_id - 1].zdrowie - atak_bohatera + statystyki_przeciwnikow[przeciwnicy[mapadane[poz_y + 1][poz_x].przeciwnik_id - 1].nr_przeciwnika - 1].obrona;
+				}
+			}
+		}
+		break;
+	case 2:
+		if (mapadane[poz_y][poz_x - 1].przeciwnik_id != 0) {
+			if (przeciwnicy[mapadane[poz_y][poz_x - 1].przeciwnik_id - 1].zdrowie > 0) {
+				if (atak_bohatera - statystyki_przeciwnikow[przeciwnicy[mapadane[poz_y][poz_x - 1].przeciwnik_id - 1].nr_przeciwnika - 1].obrona > 0) {
+					przeciwnicy[mapadane[poz_y][poz_x - 1].przeciwnik_id - 1].zdrowie - atak_bohatera + statystyki_przeciwnikow[przeciwnicy[mapadane[poz_y][poz_x - 1].przeciwnik_id - 1].nr_przeciwnika - 1].obrona;
+				}
+			}
+		}
+		break;
+	case 3:
+		if (mapadane[poz_y][poz_x + 1].przeciwnik_id != 0) {
+			if (przeciwnicy[mapadane[poz_y][poz_x + 1].przeciwnik_id - 1].zdrowie > 0) {
+				if (atak_bohatera - statystyki_przeciwnikow[przeciwnicy[mapadane[poz_y][poz_x + 1].przeciwnik_id - 1].nr_przeciwnika - 1].obrona > 0) {
+					przeciwnicy[mapadane[poz_y][poz_x + 1].przeciwnik_id - 1].zdrowie - atak_bohatera + statystyki_przeciwnikow[przeciwnicy[mapadane[poz_y][poz_x + 1].przeciwnik_id - 1].nr_przeciwnika - 1].obrona;
+				}
+			}
+		}
+		break;
+
+	}
 }
 
