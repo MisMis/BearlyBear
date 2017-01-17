@@ -148,6 +148,7 @@ void dialogi(ALLEGRO_FONT *czcionka, int rodzaj_npc, int* nr_odp, int *rozmowa, 
 						*zad = 3;
 						*rozmowa = 0;
 						zabranie_przedmioty_z_ekwipunku(przedmioty_zalozone, przedmioty_w_ekwipunku, 1, 3);
+						zapis_pliku_leafe_z_pliku_do_pliku("data/mapy/karczma.leafe", "wynik.leafe");
 					}
 					else
 					{
@@ -267,15 +268,86 @@ void zabranie_przedmioty_z_ekwipunku(int*przedmioty_zalozone, int przedmioty_w_e
 	else {
 		for (i = 0; i < 5; i++) {
 			for (j = 0; j < 3; j++) {
-				if (przedmioty_w_ekwipunku[i][j] == czego_szukamy) {
+				if (!zabrano && przedmioty_w_ekwipunku[i][j] == czego_szukamy) {
 					przedmioty_w_ekwipunku[i][j] = 0;
 					zabrano = true;
 				}
 			}
 		}
 	}
+}
+bool sprawdzenie_czy_sa_przeciwnicy_na_aktualnej_mapie(wlasciwosci_pola_t** mapa,int wysokosc,int szerokosc,int ktorego_wroga_szukamy) {
+	int i, j;
+	for (i = 0; i < wysokosc; i++) {
+		for (j = 0; j < szerokosc; j++) {
+			if (mapa[i][j].przeciwnik == ktorego_wroga_szukamy) {
+				return true;
+			}
+		}
+	}
 	return false;
 }
-bool sprawdzenie_czy_sa_przeciwnicy_na_aktualnej_mapie() {
-
+bool sprawdzenie_czy_sa_przeciwnicy_na_innej_mapie(char* nazwa_mapy,int ktorego_wroga_szukamy) {
+	FILE *plik;
+	int wysokosc, szerokosc, xspawnu, yspawnu;
+	int i, j;
+	int pomoc,to_co_trzeba;
+	fopen_s(&plik,nazwa_mapy, "r");
+	fscanf_s(plik, "%i", &wysokosc);
+	fscanf_s(plik, "%i", &szerokosc);
+	fscanf_s(plik, "%i", &xspawnu);
+	fscanf_s(plik, "%i", &yspawnu);
+	for (i = 0; i < wysokosc; i++) {
+		for (j = 0; j < szerokosc; j++) {
+			fscanf_s(plik, "%i", &pomoc);
+			fscanf_s(plik, "%i", &pomoc);
+			fscanf_s(plik, "%i", &pomoc);
+			fscanf_s(plik, "%i", &to_co_trzeba);
+			fscanf_s(plik, "%i", &pomoc);
+			fscanf_s(plik, "%i", &pomoc);
+			if (to_co_trzeba == ktorego_wroga_szukamy) {
+				return true;
+			}
+		}
+	}
+	fclose(plik);
+	return false;
+}
+void zapis_pliku_leafe_z_pliku_do_pliku(char*nazwa_wejscia, char*nazwa_wyjscia) {
+	FILE *wejscie;
+	FILE *wyjscie;
+	int wysokosc, szerokosc, xspawnu, yspawnu,i,j,k;
+	int tmp;
+	fopen_s(&wejscie, nazwa_wejscia, "r");
+	fopen_s(&wyjscie, nazwa_wyjscia, "w");
+	fscanf_s(wejscie, "%i", &wysokosc);
+	fscanf_s(wejscie, "%i", &szerokosc);
+	fscanf_s(wejscie, "%i", &xspawnu);
+	fscanf_s(wejscie, "%i", &yspawnu);
+	fprintf(wyjscie, "%i", wysokosc);
+	fprintf(wyjscie, "\n");
+	fprintf(wyjscie, "%i", szerokosc);
+	fprintf(wyjscie, "\n");
+	fprintf(wyjscie, "%i", xspawnu);
+	fprintf(wyjscie, "\n");
+	fprintf(wyjscie, "%i", yspawnu);
+	fprintf(wyjscie, "\n");
+	for (i = 0; i < wysokosc; i++) {
+		for (j = 0; j < szerokosc; j++) {
+			for (k = 0; k < 6; k++) {
+				fscanf_s(wejscie, "%i", &tmp);
+				fprintf(wyjscie, "%i ", tmp);
+			}
+		}
+		fprintf(wyjscie, "\n");
+	}
+	fclose(wyjscie);
+	fclose(wejscie);
+}
+void zapis_wszystkich_plikow(char*** nazwy_plikow,int ilosc_plikow) 
+{
+	int i;
+	for (i = 0; i < ilosc_plikow; i++) {
+		zapis_pliku_leafe_z_pliku_do_pliku(nazwy_plikow[i][1], nazwy_plikow[i][2]);
+	}
 }

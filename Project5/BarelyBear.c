@@ -8,18 +8,7 @@
 #include <allegro5\allegro_font.h>
 #include <allegro5\allegro_ttf.h>
 #include "dialogi.h"
-struct wlasciwosci_pola {
-	bool przeszkoda;
-	int  npc;
-	int  przejscie_mapy;
-	int npc_id;
-	int przeciwnik;
-	int przeciwnik_id;
-	int przedmiot;
-	int zdarzenia;
-	bool przyszle_poz_przeciwnikow;
-	bool przyszle_poz_npc;
-};
+
 struct dane_npc {
 	bool rozmawia;
 	int npc_id;
@@ -42,6 +31,8 @@ struct dane_przeciwnikow {
 	int poz_y;
 	int poz_docelowa_x;
 	int poz_docelowa_y;
+	int x_spawnu;
+	int y_spawnu;
 	int skok_miedzy_zmianami;
 	int kierunek;
 	int ostatni_kierunek;
@@ -89,7 +80,6 @@ struct wspolrzedne_pola
 typedef struct dane_do_alg_A dane_do_A;
 typedef struct lista s_lista;
 typedef struct wspolrzedne_pola s_wspolrzedne_pola;
-typedef struct wlasciwosci_pola wlasciwosci_pola_t;
 typedef struct dane_npc dane_npc_t;
 typedef struct przedmiot przedmiot_t;
 typedef struct typy_przedmiotow typy_przedmiotow_t;
@@ -119,7 +109,7 @@ void atak(wlasciwosci_pola_t**mapadane, int ostatni_kierunek, int poz_x, int poz
 
 
 int main() {
-	int ilosc_map = 29;
+	int ilosc_map = 33;
 	int mapax = 0;
 	int mapay = 0;
 	int tmp;
@@ -236,7 +226,7 @@ int main() {
 	if (ilosc_map != 0) {
 		nazwy_plikow = (char***)malloc(ilosc_map * sizeof(char**));
 		for (i = 0; i < ilosc_map; i++) {
-			nazwy_plikow[i] = (char**)malloc(2 * sizeof(char*));
+			nazwy_plikow[i] = (char**)malloc(3 * sizeof(char*));
 			}
 	}
 	czytanie_nazw(nazwy_plikow);
@@ -278,7 +268,6 @@ int main() {
 			}
 		}
 		wczytanie_z_pliku(dane_do_mapy, mapadane, wysokosc, szerokosc);
-		mapadane[5][6].przeciwnik = 3;
 		ilosc_rysowanych_npc = 0;
 		//zliczenie ilosci rysowanych npc
 		for (i = 0; i < wysokosc; i++) {
@@ -304,11 +293,11 @@ int main() {
 		//zerowanie npc.id na mapie i wyliczenie danych potrzebnych do ruchu
 		x = 1;
 		y = 1;
+		
 		for (i = 0; i < wysokosc; i++) {
 			for (j = 0; j < szerokosc; j++) {
 				mapadane[i][j].przyszle_poz_npc = false; //zerowanie przyszlych poz npc potrzebnych do kolizji z npc;
 				mapadane[i][j].przyszle_poz_przeciwnikow = false;
-				mapadane[i][j].przedmiot = 0;
 				if (mapadane[i][j].npc == 0) {
 					mapadane[i][j].npc_id = 0;
 				}
@@ -344,6 +333,8 @@ int main() {
 					dane_przeciwnikow_wartosci[tmp].poz_y = i*misjednostka*-1;
 					dane_przeciwnikow_wartosci[tmp].poz_docelowa_x = dane_przeciwnikow_wartosci[tmp].poz_x;
 					dane_przeciwnikow_wartosci[tmp].poz_docelowa_y = dane_przeciwnikow_wartosci[tmp].poz_y;
+					dane_przeciwnikow_wartosci[tmp].x_spawnu = j;
+					dane_przeciwnikow_wartosci[tmp].x_spawnu = i;
 					dane_przeciwnikow_wartosci[tmp].ostatni_kierunek = 1;
 					dane_przeciwnikow_wartosci[tmp].kierunek = 5;
 					dane_przeciwnikow_wartosci[tmp].zdrowie = 100;
@@ -353,7 +344,6 @@ int main() {
 
 			}
 		}
-		mapadane[6][6].przedmiot = 3;
 		rozmowa = 0;
 		mapa = al_load_bitmap(nazwy_plikow[numerbitmapy][0]);
 		if (numerbitmapy == 0) {
@@ -528,7 +518,7 @@ int main() {
 			if (ilosc_rysowanych_npc> 0 || ilosc_rysowanych_wrogow>0) {
 				for (i = yszukania; i < yszukania + szerszukania; i++) {
 					for (j = xszukania; j < xszukania + szerszukania; j++) {
-						if (!poza_mapa(wysokosc,szerokosc,i,j))
+						if (!poza_mapa(wysokosc,szerokosc,j,i))
 						{
 							if (mapadane[i][j].przedmiot != 0) {
 								al_draw_bitmap_region(przedmioty, (mapadane[i][j].przedmiot - 1)*misjednostka, 50, misjednostka, misjednostka, (j*misjednostka) - mapax*-1, (i*misjednostka) - mapay*-1, 0);
@@ -707,7 +697,8 @@ int main() {
 										}
 									}
 									else {
-										mapadane[i][j].przeciwnik_id = 0;
+										mapadane[dane_przeciwnikow_wartosci[tmp].y_spawnu][dane_przeciwnikow_wartosci[tmp].x_spawnu].przeciwnik_id = 0;
+										mapadane[dane_przeciwnikow_wartosci[tmp].y_spawnu][dane_przeciwnikow_wartosci[tmp].x_spawnu].przeciwnik = 0;
 									}
 								}
 							}
@@ -999,90 +990,136 @@ void czytanie_nazw(char ***nazwy) {
 
 	nazwy[0][0] = "data/mapy/miasto.png";
 	nazwy[0][1] = "data/mapy/miasto.leafe";
+	nazwy[0][2] = "save/mapy/miastosav.leafe";
 
 	nazwy[1][0] = "data/mapy/wnetrze_dom_starca.png";
 	nazwy[1][1] = "data/mapy/wnetrze_dom_starca.leafe";
+	nazwy[1][2] = "save/mapy/wnetrze_dom_starcasav.leafe";
 
 	nazwy[2][0] = "data/mapy/domAlbrehta.png";
 	nazwy[2][1] = "data/mapy/domAlbrehta.leafe";
+	nazwy[2][2] = "save/mapy/domAlbrehtasav.leafe";
 
 	nazwy[3][0] = "data/mapy/karczma.png";
 	nazwy[3][1] = "data/mapy/karczma.leafe";
+	nazwy[3][2] = "save/mapy/karczmasav.leafe";
 
 	nazwy[4][0] = "data/mapy/piwnica_szczury.png";
 	nazwy[4][1] = "data/mapy/piwnica_szczury.leafe";
+	nazwy[4][2] = "save/mapy/piwnica_szczurysav.leafe";
 
 	nazwy[5][0] = "data/mapy/wnetrze_dom_mieszkalny1.png";
 	nazwy[5][1] = "data/mapy/mieszkanie1.leafe";
+	nazwy[5][2] = "save/mapy/mieszkanie1sav.leafe";
 
 	nazwy[6][0] = "data/mapy/wnetrze_dom_mieszkalny2.png";
 	nazwy[6][1] = "data/mapy/mieszkanie2.leafe";
+	nazwy[6][2] = "save/mapy/mieszkanie2sav.leafe";
 
 	nazwy[7][0] = "data/mapy/wnetrze_dom_mieszkalny3.png";
 	nazwy[7][1] = "data/mapy/mieszkanie3.leafe";
+	nazwy[7][2] = "save/mapy/mieszkanie3sav.leafe";
 
 	nazwy[8][0] = "data/mapy/wnetrze_dom_mieszkalny1.png";
 	nazwy[8][1] = "data/mapy/mieszkanie4.leafe";
+	nazwy[8][2] = "save/mapy/mieszkanie4sav.leafe";
 
 	nazwy[9][0] = "data/mapy/wnetrze_dom_mieszkalny2.png";
 	nazwy[9][1] = "data/mapy/mieszkanie5.leafe";
+	nazwy[9][2] = "save/mapy/mieszkanie5sav.leafe";
 
 	nazwy[10][0] = "data/mapy/wnetrze_dom_mieszkalny3.png";
 	nazwy[10][1] = "data/mapy/mieszkanie6.leafe";
+	nazwy[10][2] = "save/mapy/mieszkanie6sav.leafe";
 
 	nazwy[11][0] = "data/mapy/wnetrze_dom_mieszkalny1.png";
 	nazwy[11][1] = "data/mapy/mieszkanie7.leafe";
+	nazwy[11][2] = "save/mapy/mieszkanie7sav.leafe";
 
 	nazwy[12][0] = "data/mapy/wnetrze_dom_mieszkalny2.png";
 	nazwy[12][1] = "data/mapy/mieszkanie8.leafe";
+	nazwy[12][2] = "save/mapy/mieszkanie8sav.leafe";
 
 	nazwy[13][0] = "data/mapy/wnetrze_dom_mieszkalny3.png";
 	nazwy[13][1] = "data/mapy/mieszkanie9.leafe";
+	nazwy[13][2] = "save/mapy/mieszkanie9sav.leafe";
 
 	nazwy[14][0] = "data/mapy/wnetrze_dom_mieszkalny1.png";
 	nazwy[14][1] = "data/mapy/mieszkanie10.leafe";
+	nazwy[14][2] = "save/mapy/mieszkanie10sav.leafe";
 
 	nazwy[15][0] = "data/mapy/wnetrze_dom_mieszkalny2.png";
 	nazwy[15][1] = "data/mapy/mieszkanie11.leafe";
+	nazwy[15][2] = "save/mapy/mieszkanie11sav.leafe";
 
 	nazwy[16][0] = "data/mapy/wnetrze_dom_mieszkalny3.png";
 	nazwy[16][1] = "data/mapy/mieszkanie12.leafe";
+	nazwy[16][2] = "save/mapy/mieszkanie12sav.leafe";
 
 	nazwy[17][0] = "data/mapy/wnetrze_dom_mieszkalny1.png";
 	nazwy[17][1] = "data/mapy/mieszkanie13.leafe";
+	nazwy[17][2] = "save/mapy/mieszkanie13sav.leafe";
 
 	nazwy[18][0] = "data/mapy/wnetrze_dom_mieszkalny2.png";
 	nazwy[18][1] = "data/mapy/mieszkanie14.leafe";
+	nazwy[18][2] = "save/mapy/mieszkanie14sav.leafe";
 
 	nazwy[19][0] = "data/mapy/wnetrze_dom_mieszkalny3.png";
 	nazwy[19][1] = "data/mapy/mieszkanie15.leafe";
+	nazwy[19][2] = "save/mapy/mieszkanie15sav.leafe";
 
 	nazwy[20][0] = "data/mapy/wnetrze_dom_mieszkalny1.png";
 	nazwy[20][1] = "data/mapy/mieszkanie16.leafe";
+	nazwy[20][2] = "save/mapy/mieszkanie16sav.leafe";
 
 	nazwy[21][0] = "data/mapy/wnetrze_dom_mieszkalny2.png";
 	nazwy[21][1] = "data/mapy/mieszkanie17.leafe";
+	nazwy[21][2] = "save/mapy/mieszkanie17sav.leafe";
 
 	nazwy[22][0] = "data/mapy/wnetrze_dom_mieszkalny3.png";
 	nazwy[22][1] = "data/mapy/mieszkanie18.leafe";
+	nazwy[22][2] = "save/mapy/mieszkanie18sav.leafe";
 
 	nazwy[23][0] = "data/mapy/wnetrze_dom_mieszkalny1.png";
 	nazwy[23][1] = "data/mapy/mieszkanie19.leafe";
+	nazwy[23][2] = "save/mapy/mieszkanie19sav.leafe";
 
 	nazwy[24][0] = "data/mapy/wnetrze_dom_mieszkalny2.png";
 	nazwy[24][1] = "data/mapy/mieszkanie20.leafe";
+	nazwy[24][2] = "save/mapy/mieszkanie20sav.leafe";
 
 	nazwy[25][0] = "data/mapy/wnetrze_dom_mieszkalny3.png";
 	nazwy[25][1] = "data/mapy/mieszkanie21.leafe";
+	nazwy[25][2] = "save/mapy/mieszkanie21sav.leafe";
 
 	nazwy[26][0] = "data/mapy/wnetrze_dom_mieszkalny1.png";
 	nazwy[26][1] = "data/mapy/mieszkanie22.leafe";
+	nazwy[26][2] = "save/mapy/mieszkanie22sav.leafe";
 
 	nazwy[27][0] = "data/mapy/wnetrze_dom_mieszkalny2.png";
 	nazwy[27][1] = "data/mapy/mieszkanie23.leafe";
+	nazwy[27][2] = "save/mapy/mieszkanie23sav.leafe";
 
 	nazwy[28][0] = "data/mapy/wnetrze_dom_mieszkalny3.png";
 	nazwy[28][1] = "data/mapy/mieszkanie24.leafe";
+	nazwy[28][2] = "save/mapy/mieszkanie24sav.leafe";
+
+	nazwy[29][0] = "data/mapy/biblioteka.png";
+	nazwy[29][1] = "data/mapy/biblioteka.leafe";
+	nazwy[29][2] = "save/mapy/bibliotekasav.leafe";
+
+	nazwy[30][0] = "data/mapy/gildia.png";
+	nazwy[30][1] = "data/mapy/gildia.leafe";
+	nazwy[30][2] = "save/mapy/gildiasav.leafe";
+
+	nazwy[31][0] = "data/mapy/jaskinia.png";
+	nazwy[31][1] = "data/mapy/jaskinia.leafe";
+	nazwy[31][2] = "save/mapy/jaskiniasav.leafe";
+
+	nazwy[32][0] = "data/mapy/strozowka.png";
+	nazwy[32][1] = "data/mapy/strozowka.leafe";
+	nazwy[32][2] = "save/mapy/strozowkasav.leafe";
+
 
 }
 void czytanie_nazw_przeciwnikow(char **nazwy) {
