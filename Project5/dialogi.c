@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include <allegro5\allegro.h>
-#include <allegro5\allegro_font.h>
-#include <allegro5\allegro_ttf.h>
+#include "allegro5\allegro.h"
+#include "allegro5\allegro_font.h"
+#include "allegro5\allegro_ttf.h"
 #include "dialogi.h"
 void dialogi(wlasciwosci_pola_t **dane, ALLEGRO_FONT *czcionka, int rodzaj_npc, int* nr_odp, int *rozmowa, int *zad, float czas, bool *wziecie_czasu, bool *wybor, int *ilosc_opcji, int *drugi_wybor, int numer_mapy, int *przedmioty_zalozone, int przedmioty_w_ekwipunku[][3], bool *zmianamapy, int*stary_numer_bitmapy, char***nazwy_plikow,bool *stara_pozycja) {
 	rodzaj_npc--;
@@ -198,7 +198,10 @@ void dialogi(wlasciwosci_pola_t **dane, ALLEGRO_FONT *czcionka, int rodzaj_npc, 
 				}
 				if (czas < 3 && *nr_odp == 1) {
 					if (sprawdzenie_czy_przedmiot_jest_w_ekwipunku(przedmioty_zalozone, przedmioty_w_ekwipunku, 1, 3)) {
-						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "ok");
+						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "dziekuje,skoro obiecalem ci pomoc wiec prosze,");
+						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "oto twoja moneta i miod. Zeby przetrwac w naszym");
+						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 620, 0, "swiecie powinienes nauczyc sie walczyc.");
+						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 650, 0, "porozmawiaj ze mna gdy bedziesz gotowy");
 					}
 					else {
 						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Przykro mi ale nie masz wiadra wody");
@@ -206,10 +209,12 @@ void dialogi(wlasciwosci_pola_t **dane, ALLEGRO_FONT *czcionka, int rodzaj_npc, 
 				}
 				if (czas > 3 && *nr_odp == 1) {
 					if (sprawdzenie_czy_przedmiot_jest_w_ekwipunku(przedmioty_zalozone, przedmioty_w_ekwipunku, 1, 3)) {
-						*zad = 3;
-						*rozmowa = 0;
 						zabranie_przedmioty_z_ekwipunku(przedmioty_zalozone, przedmioty_w_ekwipunku, 1, 3);
-						zapis_pliku_leafe_z_pliku_do_pliku("data/mapy/karczma.leafe", "wynik.leafe");
+						*nr_odp = 0;
+						*rozmowa = 0;
+						*zad = 3;
+						dodaj_przedmiot_do_ekwipunku(przedmioty_w_ekwipunku, 6);
+						dodaj_przedmiot_do_ekwipunku(przedmioty_w_ekwipunku, 7);
 					}
 					else
 					{
@@ -221,6 +226,68 @@ void dialogi(wlasciwosci_pola_t **dane, ALLEGRO_FONT *czcionka, int rodzaj_npc, 
 				}
 				if (*nr_odp == 2 && czas > 3) {
 					*rozmowa = false;
+				}
+			}
+		}
+	}
+	if (*zad == 3) {
+		if (numer_mapy == 1) {
+			if (rodzaj_npc == 1) {
+				if (*nr_odp == 0 && czas < 5) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "wez prosze ten widelec zaatakuj sliwki lezace na");
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "stolemozesz sie odwracac przytrzymujac ctl i");
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 620, 0, "klikajac strzalke w odpowiednim kierunku.");
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 650, 0, "Atakujesz klikajac spacje");
+				}
+				if (*nr_odp == 0 && czas > 5) {
+					*rozmowa = 0;
+					*nr_odp = 0;
+					dodaj_przedmiot_do_ekwipunku(przedmioty_w_ekwipunku, 5);
+					*zad = 4;
+					
+				}
+			}
+		}
+	}
+	if (*zad == 4) {
+		if (numer_mapy == 1) {
+			if (rodzaj_npc == 1) {
+				if (*nr_odp == 0 && czas < 3) {
+					*wybor = false;
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "czy pokonales juz sliwki?");
+				}
+				if (*nr_odp == 0 && czas > 3) {
+					*wybor = true;
+					*ilosc_opcji = 2;
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "tak");
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "nie");
+				}
+				if (*nr_odp == 1 && czas < 3) {
+					if (!sprawdzenie_czy_sa_przeciwnicy_na_aktualnej_mapie(dane, 15, 15, 4)) {
+						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "ok");
+					}
+					else {
+						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "nie pokonales jeszcze sliwek");
+					}
+				}
+				if (*nr_odp == 1 && czas > 3) {
+					if (!sprawdzenie_czy_sa_przeciwnicy_na_aktualnej_mapie(dane, 15, 15, 4)) {
+						dodaj_przedmiot_do_ekwipunku(przedmioty_w_ekwipunku, 8);
+						*rozmowa = 0;
+						*nr_odp = 0;
+					}
+					else {
+						*rozmowa = 0;
+						*nr_odp = 0;
+					}
+				}
+				if (*nr_odp==2 && czas <3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "w takim razie na co czekasz ");
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "nie boj sie latwo je pokonasz");
+				}
+				if (*nr_odp == 2 && czas > 3) {
+					*rozmowa = 0;
+						* nr_odp = 0;
 				}
 			}
 		}
@@ -402,8 +469,9 @@ void menu(ALLEGRO_FONT *czczionka,ALLEGRO_COLOR *kolory,int wybor,ALLEGRO_BITMAP
 	al_draw_text(czczionka, kolory[4], 470, 620, 0, "wyjscie");
 	al_flip_display();
 }
-void wybor_z_menu(int pole_wybrane, bool *zakonczenie,bool *gra,char*** nazwy_plikow,int ilosc_plikow,bool *jest_gra,bool *jest_pozycja, int przedmioty_w_ekwipunku[][3], int *przedmioty_zalozone, int *zdrowie, int *nr_zad, int *numerbitmapy, int *stary_numer_bitmapy, int *pozycja_kontunulowaniax, int *pozycja_kontunulowaniay) {
+void wybor_z_menu(int pole_wybrane, bool *zakonczenie,bool *gra,char*** nazwy_plikow,int ilosc_plikow,bool *jest_gra,bool *jest_pozycja, int przedmioty_w_ekwipunku[][3], int *przedmioty_zalozone, int *zdrowie, int *nr_zad, int *numerbitmapy, int *stary_numer_bitmapy, int *pozycja_kontunulowaniax, int *pozycja_kontunulowaniay,int*xstarejpoz,int*ystarejpoz) {
 	FILE *plik;
+	int i, j;
 	switch (pole_wybrane)
 	{
 	case 0:
@@ -416,6 +484,22 @@ void wybor_z_menu(int pole_wybrane, bool *zakonczenie,bool *gra,char*** nazwy_pl
 		zapis_wszystkich_plikow(nazwy_plikow,ilosc_plikow,1,3);
 		*gra = true;
 		*jest_gra = true;
+		for (i = 0; i < 5; i++) {
+			for (j = 0; j < 3; j++) {
+				przedmioty_w_ekwipunku[i][j] = 0;
+			}
+		}
+		for (i = 0; i < 6; i++) {
+			przedmioty_zalozone[i] = 0;
+		}
+		*zdrowie = 100;
+		*numerbitmapy = 0;
+		*nr_zad = 1;
+		*stary_numer_bitmapy = 0;
+		*pozycja_kontunulowaniax = 0;
+		*pozycja_kontunulowaniay = 0;
+		*jest_pozycja = true;
+		przedmioty_w_ekwipunku[1][1] = 2;
 		break;
 	case 2:
 		fopen_s(&plik,"save/mapy/miastosav.leafe","r");
@@ -425,12 +509,12 @@ void wybor_z_menu(int pole_wybrane, bool *zakonczenie,bool *gra,char*** nazwy_pl
 				*gra = true;
 				*jest_gra = true;
 				*jest_pozycja = true;
-				wczytanie_danych_poczatkowych(przedmioty_w_ekwipunku, przedmioty_zalozone, zdrowie, nr_zad, numerbitmapy, stary_numer_bitmapy, pozycja_kontunulowaniax, pozycja_kontunulowaniay);
+				wczytanie_danych_poczatkowych(przedmioty_w_ekwipunku, przedmioty_zalozone, zdrowie, nr_zad, numerbitmapy, stary_numer_bitmapy, pozycja_kontunulowaniax, pozycja_kontunulowaniay,xstarejpoz,ystarejpoz);
 			}
 		break;
 	case 3:
 		zapis_wszystkich_plikow(nazwy_plikow, ilosc_plikow, 3, 2);
-		zapis_danych_poczatkowych(przedmioty_w_ekwipunku, przedmioty_zalozone, *zdrowie, *nr_zad, *numerbitmapy, *stary_numer_bitmapy, *pozycja_kontunulowaniax, *pozycja_kontunulowaniay, jest_pozycja);
+		zapis_danych_poczatkowych(przedmioty_w_ekwipunku, przedmioty_zalozone, *zdrowie, *nr_zad, *numerbitmapy, *stary_numer_bitmapy, *pozycja_kontunulowaniax, *pozycja_kontunulowaniay, jest_pozycja,*xstarejpoz,*ystarejpoz);
 		break;
 	case 4:
 		*zakonczenie = true;
@@ -461,7 +545,7 @@ void zapis_do_pliku(FILE *wyjscie, wlasciwosci_pola_t **dane, int wysokosc, int 
 
 	}
 }
-void zapis_danych_poczatkowych(int przedmioty_w_ekwipunku[][3],int *przedmioty_zalozone,int zdrowie,int nr_zad,int numerbitmapy,int stary_numer_bitmapy,int pozycja_kontunulowaniax,int pozycja_kontunulowaniay,bool *jest_pozycja) {
+void zapis_danych_poczatkowych(int przedmioty_w_ekwipunku[][3],int *przedmioty_zalozone,int zdrowie,int nr_zad,int numerbitmapy,int stary_numer_bitmapy,int pozycja_kontunulowaniax,int pozycja_kontunulowaniay,bool *jest_pozycja,int xstarejpoz,int ystarejpoz) {
 	FILE*plik;
 	int i, j;
 	fopen_s(&plik, "save/dane.sav","w");
@@ -489,10 +573,15 @@ void zapis_danych_poczatkowych(int przedmioty_w_ekwipunku[][3],int *przedmioty_z
 	fprintf_s(plik, "%i", pozycja_kontunulowaniax);
 	fprintf_s(plik, "\n");
 	fprintf_s(plik, "%i", pozycja_kontunulowaniay);
+	fprintf_s(plik, "\n");
+	fprintf_s(plik, "%i", xstarejpoz);
+	fprintf_s(plik, "\n");
+	fprintf_s(plik, "%i", ystarejpoz);
+
 	*jest_pozycja = true;
 	fclose(plik);
 }
-void wczytanie_danych_poczatkowych(int przedmioty_w_ekwipunku[][3], int *przedmioty_zalozone, int *zdrowie, int *nr_zad, int *numerbitmapy, int *stary_numer_bitmapy, int *pozycja_kontunulowaniax, int *pozycja_kontunulowaniay) {
+void wczytanie_danych_poczatkowych(int przedmioty_w_ekwipunku[][3], int *przedmioty_zalozone, int *zdrowie, int *nr_zad, int *numerbitmapy, int *stary_numer_bitmapy, int *pozycja_kontunulowaniax, int *pozycja_kontunulowaniay,int *xstarejpoz,int *ystarejpoz) {
 	FILE *plik;
 	int i, j;
 	fopen_s(&plik, "save/dane.sav", "r");
@@ -510,6 +599,8 @@ void wczytanie_danych_poczatkowych(int przedmioty_w_ekwipunku[][3], int *przedmi
 	fscanf_s(plik, "%i", stary_numer_bitmapy);
 	fscanf_s(plik, "%i", pozycja_kontunulowaniax);
 	fscanf_s(plik, "%i", pozycja_kontunulowaniay);
+	fscanf_s(plik, "%i", xstarejpoz);
+	fscanf_s(plik, "%i", ystarejpoz);
 	fclose(plik);
 }
 void wczytanie_z_pliku(FILE *wyjscie, wlasciwosci_pola_t **dane, int wysokosc, int szerokosc) {
@@ -526,4 +617,16 @@ void wczytanie_z_pliku(FILE *wyjscie, wlasciwosci_pola_t **dane, int wysokosc, i
 			fscanf_s(wyjscie, "%i", &dane[j][i].zdarzenia);
 		}
 	}
+}
+bool dodaj_przedmiot_do_ekwipunku(int ekwipunek[][3], int id_przedmiotu) {
+	int i, j;
+	for (i = 0; i<5; i++) {
+		for (j = 0; j < 3; j++) {
+			if (ekwipunek[i][j] == 0) {
+				ekwipunek[i][j] = id_przedmiotu;
+				return true;
+			}
+		}
+	}
+	return false;
 }

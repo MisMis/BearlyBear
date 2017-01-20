@@ -25,9 +25,10 @@ void dodanie_npc_do_innej_mapy(char*** nazwy_plikow, int na_poz_x, int na_poz_y,
 void zapis_pliku_leafe_z_pliku_do_pliku(char*nazwa_wejscia, char*nazwa_wyjscia);
 void zapis_wszystkich_plikow(char*** nazwy_plikow, int ilosc_plikow, int pliki_wejscia, int pliki_wyjscia);
 void menu(ALLEGRO_FONT *czczionka, ALLEGRO_COLOR *kolory, int wybor, ALLEGRO_BITMAP*grafika, bool jest_gra);
-void wybor_z_menu(int pole_wybrane, bool *zakonczenie, bool *gra, char*** nazwy_plikow, int ilosc_plikow, bool *jest_gra, bool *jest_pozycja, int przedmioty_w_ekwipunku[][3], int *przedmioty_zalozone, int *zdrowie, int *nr_zad, int *numerbitmapy, int *stary_numer_bitmapy, int *pozycja_kontunulowaniax, int *pozycja_kontunulowaniay);
+void wybor_z_menu(int pole_wybrane, bool *zakonczenie, bool *gra, char*** nazwy_plikow, int ilosc_plikow, bool *jest_gra, bool *jest_pozycja, int przedmioty_w_ekwipunku[][3], int *przedmioty_zalozone, int *zdrowie, int *nr_zad, int *numerbitmapy, int *stary_numer_bitmapy, int *pozycja_kontunulowaniax, int *pozycja_kontunulowaniay, int*xstarejpoz, int*ystarejpoz);
 void zapis_do_pliku(FILE *wyjscie, wlasciwosci_pola_t **dane, int wysokosc, int szerokosc, int xspawnu, int yspawnu);
-void zapis_danych_poczatkowych(int przedmioty_w_ekwipunku[][3], int *przedmioty_zalozone, int zdrowie, int nr_zad, int numerbitmapy, int stary_numer_bitmapy, int pozycja_kontunulowaniax, int pozycja_kontunulowaniay, bool *jest_pozycja);
-void wczytanie_danych_poczatkowych(int przedmioty_w_ekwipunku[][3], int *przedmioty_zalozone, int *zdrowie, int *nr_zad, int *numerbitmapy, int *stary_numer_bitmapy, int *pozycja_kontunulowaniax, int *pozycja_kontunulowaniay);
+void zapis_danych_poczatkowych(int przedmioty_w_ekwipunku[][3], int *przedmioty_zalozone, int zdrowie, int nr_zad, int numerbitmapy, int stary_numer_bitmapy, int pozycja_kontunulowaniax, int pozycja_kontunulowaniay, bool *jest_pozycja, int xstarejpoz, int ystarejpoz);
+void wczytanie_danych_poczatkowych(int przedmioty_w_ekwipunku[][3], int *przedmioty_zalozone, int *zdrowie, int *nr_zad, int *numerbitmapy, int *stary_numer_bitmapy, int *pozycja_kontunulowaniax, int *pozycja_kontunulowaniay, int *xstarejpoz, int *ystarejpoz);
 void wczytanie_z_pliku(FILE *wyjscie, wlasciwosci_pola_t **dane, int wysokosc, int szerokosc);
+bool dodaj_przedmiot_do_ekwipunku(int ekwipunek[][3], int id_przedmiotu);
 #endif // !dialogi.h
