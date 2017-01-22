@@ -553,6 +553,107 @@ void dialogi(wlasciwosci_pola_t **dane, ALLEGRO_FONT *czcionka, int rodzaj_npc, 
 			}
 		}
 	}
+	if (*zad == 9) {
+		if (numer_mapy == 3) {
+			if (rodzaj_npc == 14) {
+				if (*nr_odp == 0 && czas < 3) {
+					*wybor = false;
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "czy pokonales juz kupca?");
+				}
+				if (*nr_odp == 0 && czas > 3) {
+					*wybor = true;
+					*ilosc_opcji = 2;
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "tak");
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "nie");
+				}
+				if (*nr_odp == 1 && czas < 5) {
+					if (!sprawdzenie_czy_sa_przeciwnicy_na_innej_mapie("tmp/mapy/miastotmp.leafe", 5)) {
+						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Ejjj, dobry jestes. Przepraszam, ze w Ciebie");
+						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "watpilem. Jesli chcesz mozesz wstapic");
+						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 620, 0, "do glidlii magow i zobyc dodatkowe umiejetnosci");
+					}
+					else {
+						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "nie pokonales jeszcze kupca");
+					}
+				}
+				if (*nr_odp == 1 && czas > 5) {
+					if (!sprawdzenie_czy_sa_przeciwnicy_na_aktualnej_mapie(dane, 15, 15, 4)) {
+						*nr_odp = 0;
+						*zad = 10;
+						*rozmowa = 0;
+					}
+					else {
+						*rozmowa = 0;
+						*nr_odp = 0;
+					}
+				}
+				if (*nr_odp == 2 && czas <3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "szkoda potrzebuje swoich pieniedzy");
+				}
+				if (*nr_odp == 2 && czas > 3) {
+					*rozmowa = 0;
+					*nr_odp = 0;
+				}
+			}
+		}
+	}
+	if (*zad == 10) {
+		if (numer_mapy == 30) {
+			if (rodzaj_npc == 15) {
+				if (*nr_odp == 0 && czas < 3) {
+					*wybor = false;
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Czy chcesz dolaczyc do glidii magow?");
+				}
+				if (*nr_odp == 0 && czas > 3) {
+					*wybor = true;
+					*ilosc_opcji = 2;
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "tak");
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "nie");
+				}
+				if (*nr_odp == 1 && czas < 5) {
+						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Moge nauczyc Cie rzucac kule ognia, ale...");
+						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "chwia... nie mam juz wiecej lawy!");
+						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 620, 0, "udaj sie do jaskini na wzgorzu za miastem ");
+						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 650, 0, "i przynies mi tak z wiaderko");
+				}
+				if (*nr_odp == 1 && czas > 5) {
+					*zad = 11;
+					*rozmowa = 0;
+					*nr_odp = 0;
+				}
+				if (*nr_odp == 2 && czas <3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jak chcesz");
+				}
+				if (*nr_odp == 2 && czas > 3) {
+					*rozmowa = 0;
+					*nr_odp = 0;
+				}
+			}
+		}
+	}
+	if (*zad == 11) {
+		if (rodzaj_npc == 15) {
+			if (*nr_odp == 0 && czas < 3) {
+				if (sprawdzenie_czy_przedmiot_jest_w_ekwipunku(przedmioty_w_ekwipunku, przedmioty_w_ekwipunku, 9, 4)) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "brawo");
+				}
+				else
+				{
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "nie masz jeszcze wiadra");
+				}
+			}
+			if (*nr_odp == 0 && czas > 3) {
+				if (sprawdzenie_czy_przedmiot_jest_w_ekwipunku(przedmioty_w_ekwipunku,przedmioty_w_ekwipunku, 9, 4)) {
+					*zad = 12;
+					*rozmowa = 0;
+				}
+				else
+				{
+					*rozmowa = 0;
+				}
+			}
+		}
+	}
 }
 void zamiana_itemu_w_ekwipunku(int *przedmioty_zaolozone, int przedmioty_w_ekwipunku[][3],int z_czego,int na_co,int typ_itemu) {
 	bool zamieniono = false;
@@ -580,13 +681,30 @@ void eventy(int ktory_event,int *mapax, int *mapay, int *przedmioty_zaolozone, i
 		break;
 	case 2:
 		*mapax = -750;
-		*mapay= 250;
+		*mapay = 250;
 		*xdocelowe = *mapax;
 		*ydocelowe = *mapay;
 		break;
 	case 3:
 		*mapax = -750;
 		*mapay = 0;
+		*xdocelowe = *mapax;
+		*ydocelowe = *mapay;
+		break;
+	case 4:
+		break;
+	case 5:
+		zamiana_itemu_w_ekwipunku(przedmioty_zaolozone, przedmioty_w_ekwipunku, 3, 9, 3);
+		break;
+	case 6:
+		*mapax = -3050;
+		*mapay = -2550;
+		*xdocelowe = *mapax;
+		*ydocelowe = *mapay;
+		break;
+	case 7:
+		*mapax = -3050;
+		*mapay = -2250;
 		*xdocelowe = *mapax;
 		*ydocelowe = *mapay;
 		break;

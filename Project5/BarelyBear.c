@@ -181,7 +181,7 @@ int main() {
 	char ***nazwy_plikow;
 	char **nazwy_npc;
 	char **nazwy_przeciwnikow;
-	przedmiot_t opisy_przedmiotow[8];
+	przedmiot_t opisy_przedmiotow[9];
 	typy_przedmiotow_t typy_przedmiotow_tab[6];
 
 	//zmienne logiczne kierujace gra
@@ -223,6 +223,7 @@ int main() {
 	ALLEGRO_COLOR kolory_do_menu[5];
 	ALLEGRO_BITMAP **wrogowie = NULL;
 	ALLEGRO_BITMAP **NPC = NULL;
+	ALLEGRO_BITMAP *ekran_koncowy;
 
 	//inicjacja allegro
 	okno = al_create_display(750, 750);
@@ -251,6 +252,7 @@ int main() {
 	ramka_wyboru_do_dialogow = al_load_bitmap("data/inne/podkreslenie_tekstu.png");
 	menu_grafika = al_load_bitmap("data/inne/menu.png");
 	ekran_zgonuxD = al_load_bitmap("data/inne/zgon.png");
+	ekran_koncowy = al_load_bitmap("data/inne/end.png");
 	//zerowanie tablicy z przedmoitami;
 	for (i = 0; i < 5; i++) {
 		for (j = 0; j < 3; j++) {
@@ -746,6 +748,9 @@ int main() {
 												dane_przeciwnikow_wartosci[tmp].kierunek = 4;
 												aktualna_poz_przeciwnika.x = dane_przeciwnikow_wartosci[tmp].poz_x / misjednostka*-1;
 												aktualna_poz_przeciwnika.y = dane_przeciwnikow_wartosci[tmp].poz_y / misjednostka*-1;
+												if (mapadane[aktualna_poz_przeciwnika.y][aktualna_poz_przeciwnika.x].zdarzenia == 4) {
+													dane_przeciwnikow_wartosci[tmp].zdrowie -= 10;
+												}
 												poz_gracza.x = (xdocelowe - bohaterx)*-1 / misjednostka;
 												poz_gracza.y = (ydocelowe - bohatery)*-1 / misjednostka;
 												if (dane_przeciwnikow_wartosci[tmp].poz_x / misjednostka*-1 != j || dane_przeciwnikow_wartosci[tmp].poz_y / misjednostka*-1 != i) {
@@ -851,6 +856,15 @@ int main() {
 					czas = clock();
 					do {
 						al_draw_bitmap(ekran_zgonuxD, 0, 0, 0);
+						al_flip_display();
+					} while ((((float)clock() - czas) / CLOCKS_PER_SEC) < 5);
+				}
+				if (nr_zad==12) {
+					czy_jest_gra = false;
+					gra = false;
+					czas = clock();
+					do {
+						al_draw_bitmap(ekran_koncowy, 0, 0, 0);
 						al_flip_display();
 					} while ((((float)clock() - czas) / CLOCKS_PER_SEC) < 5);
 				}
@@ -1036,6 +1050,7 @@ int main() {
 	al_destroy_bitmap(ramka_wyboru_do_dialogow);
 	al_destroy_bitmap(menu_grafika);
 	al_destroy_bitmap(ekran_zgonuxD);
+	al_destroy_bitmap(ekran_koncowy);
 
 	return 0;
 }
@@ -1108,6 +1123,11 @@ void ladowanie_opisow_przedmiotow(przedmiot_t *tablica) {
 	tablica[7].typ = 6;
 	strcpy_s(tablica[7].opis, 50, "sliwka ktora dostales od starca");
 	tablica[7].atak =0;
+	//wiadro z lawa
+	strcpy_s(tablica[8].nazwa, 20, "wiadro z lawa");
+	tablica[8].typ = 4;
+	tablica[8].atak = 0;
+	strcpy_s(tablica[8].opis, 50, "wiadro pelne lawy");
 }
 void rysowanie_postaci_w_ruchu(ALLEGRO_BITMAP *obraz, int kierunek, int pix, int poz_x, int poz_y, int ostatni_kierunek) {
 	int granica_skoku = 15;
