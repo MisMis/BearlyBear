@@ -16,7 +16,7 @@ struct wlasciwosci_pola {
 typedef struct wlasciwosci_pola wlasciwosci_pola_t;
 void dialogi(wlasciwosci_pola_t**dane,ALLEGRO_FONT *czcionka, int rodzaj_npc, int* nr_odp, int *rozmowa, int *zad, float czas, bool *wziecie_czasu, bool *wybor, int *ilosc_opcji, int *drugi_wybor, int numer_mapy, int *przedmioty_zalozone, int przedmioty_w_ekwipunku[][3], bool *zmianamapy, int*stary_numer_bitmapy, char***nazwy_plikow,bool*stara_pozycja);
 void zamiana_itemu_w_ekwipunku(int *przedmioty_zaolozone, int przedmioty_w_ekwipunku[][3], int z_czego, int na_co, int typ_itemu);
-void eventy(int ktory_event, int poz_gracza_x, int poz_gracza_y, int *przedmioty_zaolozone, int przedmioty_w_ekwipunku[][3]);
+void eventy(int ktory_event, int *mapax, int *mapay, int *przedmioty_zaolozone, int przedmioty_w_ekwipunku[][3], int *xdocelowe, int *ydocelowe);
 bool sprawdzenie_czy_przedmiot_jest_w_ekwipunku(int*przedmioty_zalozone, int przedmioty_w_ekwipunku[][3], int czego_szukamy, int typ_itemu);
 void zabranie_przedmioty_z_ekwipunku(int*przedmioty_zalozone, int przedmioty_w_ekwipunku[][3], int czego_szukamy, int typ_itemu);
 bool sprawdzenie_czy_sa_przeciwnicy_na_aktualnej_mapie(wlasciwosci_pola_t** mapa, int wysokosc, int szerokosc, int ktorego_wroga_szukamy);
@@ -31,4 +31,5 @@ void zapis_danych_poczatkowych(int przedmioty_w_ekwipunku[][3], int *przedmioty_
 void wczytanie_danych_poczatkowych(int przedmioty_w_ekwipunku[][3], int *przedmioty_zalozone, int *zdrowie, int *nr_zad, int *numerbitmapy, int *stary_numer_bitmapy, int *pozycja_kontunulowaniax, int *pozycja_kontunulowaniay, int *xstarejpoz, int *ystarejpoz);
 void wczytanie_z_pliku(FILE *wyjscie, wlasciwosci_pola_t **dane, int wysokosc, int szerokosc);
 bool dodaj_przedmiot_do_ekwipunku(int ekwipunek[][3], int id_przedmiotu);
+void dodanie_przeciwnika_do_innej_mapy(char*** nazwy_plikow, int na_poz_x, int na_poz_y, int ktory_wrog, int na_ktora_mape);
 #endif // !dialogi.h
