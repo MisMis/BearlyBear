@@ -110,7 +110,7 @@ void rysownaie_hp_przeciwnika(int zdrowie, int pozx, int pozy);
 
 int main() {
 
-	int predkosc_bohatera = 5;
+	int predkosc_bohatera = 2;
 	//zmienne startowe
 	int przedmioty_w_ekwipunku[5][3];
 	int przedmioty_zalozone[6];
