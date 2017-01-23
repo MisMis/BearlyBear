@@ -173,14 +173,14 @@ int main() {
 	//zmienne wymiaru mapy
 	int wysokosc, szerokosc;
     //zmienne z danymi i wskazniki do zmiennych z danymi
-	przeciwnicy_statystyki_t *statystyki_przec;
+	przeciwnicy_statystyki_t *statystyki_przec=NULL;
 	s_wspolrzedne_pola pomoc, aktualna_poz_przeciwnika, poz_gracza;
 	wlasciwosci_pola_t** mapadane = NULL;
 	dane_npc_t *dane_do_ruchu_npc;
 	dane_przeciwnikow_t *dane_przeciwnikow_wartosci = NULL;
-	char ***nazwy_plikow;
-	char **nazwy_npc;
-	char **nazwy_przeciwnikow;
+	char ***nazwy_plikow=NULL;
+	char **nazwy_npc=NULL;
+	char **nazwy_przeciwnikow=NULL;
 	przedmiot_t opisy_przedmiotow[9];
 	typy_przedmiotow_t typy_przedmiotow_tab[6];
 
@@ -428,6 +428,8 @@ int main() {
 
 				}
 			}
+			xodrzutu = 0;
+			yodrzutu = 0;
 			rozmowa = 0;
 			mapa = al_load_bitmap(nazwy_plikow[numerbitmapy][0]);
 			if (numerbitmapy == 0) {
@@ -853,6 +855,9 @@ int main() {
 				if (zdrowie <= 0 || mapadane[aktualna_pozycjay][aktualna_pozycjax].przeszkoda == true) {
 					czy_jest_gra = false;
 					gra = false;
+					odrzut = false;
+					czy_ekwipunek = false;
+					ruch = true;
 					czas = clock();
 					do {
 						al_draw_bitmap(ekran_zgonuxD, 0, 0, 0);
@@ -1724,4 +1729,3 @@ void rysownaie_hp_przeciwnika(int zdrowie, int pozx, int pozy) {
 		al_draw_circle(pozx + 5, pozy + 5, 4, al_map_rgb(250, 5*pomoc, 0), 7);
 	}
 }
-
