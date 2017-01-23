@@ -132,6 +132,76 @@ void dialogi(wlasciwosci_pola_t **dane, ALLEGRO_FONT *czcionka, int rodzaj_npc, 
 				}
 			}
 		}
+		if (numer_mapy == 2) {
+			if (rodzaj_npc == 5) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Kto ty jestes,czego chcesz");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 3) {
+			if (rodzaj_npc == 0) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "*pijacka czkawka*");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 2) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "maja tutaj dobre piwo *czka*");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 3) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "nie lubie tych pijakow");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 4) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "przytul mnie");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 10) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "ha ha ha odwal sie...");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 11) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "spadaj!");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 14) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jezeli masz pieniadze mozesz cos zamowic");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 30) {
+			if (rodzaj_npc == 15) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "odejdz, niegodny");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 32) {
+			if (rodzaj_npc == 8) {
+				if (czas < 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jestem w pracy nie przeszkadzaj");
+				}
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
 	}
 	if (*zad == 2) {
 		if (numer_mapy == 0) {
@@ -248,15 +318,131 @@ void dialogi(wlasciwosci_pola_t **dane, ALLEGRO_FONT *czcionka, int rodzaj_npc, 
 				}
 			}
 		}
+		if (numer_mapy == 2) {
+			if (rodzaj_npc == 5) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Kto ty jestes,czego chcesz");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 3) {
+			if (rodzaj_npc == 0) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "*pijacka czkawka*");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 2) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "maja tutaj dobre piwo *czka*");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 3) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "nie lubie tych pijakow");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 4) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "przytul mnie");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 10) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "ha ha ha odwal sie...");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 11) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "spadaj!");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 14) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jezeli masz pieniadze mozesz cos zamowic");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 30) {
+			if (rodzaj_npc == 15) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "odejdz, niegodny");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 32) {
+			if (rodzaj_npc == 8) {
+				if (czas < 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jestem w pracy nie przeszkadzaj");
+				}
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
 	}
 	if (*zad == 3) {
 		if (numer_mapy == 0) {
+			if (rodzaj_npc == 0) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "dzien dobry, piekny mamy dzis dzien");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 2) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "witaj");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 3) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jestes calkiem przystojnym misiem");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 4) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "dzien dobry");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
 			if(rodzaj_npc == 6) {
 				if (*nr_odp == 0 && czas < 4) {
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jesli chcesz przejsc przez brame");
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "przycisnij r obok niej ");
 				}
 				if (*nr_odp == 0 && czas > 4) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 12) {
+				if (czas < 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Warzywa! Warzywa!");
+				}
+				if (czas > 3 && czas < 6) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "prosze obejrzyj je");
+				}
+				if (czas > 6) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 13) {
+				if (czas < 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Ryby! swieze ryby");
+				}
+				if (czas > 3 && czas < 6) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "najlepsze ryby w miescie");
+				}
+				if (czas > 6) {
 					*rozmowa = 0;
 				}
 			}
@@ -278,15 +464,131 @@ void dialogi(wlasciwosci_pola_t **dane, ALLEGRO_FONT *czcionka, int rodzaj_npc, 
 				}
 			}
 		}
+		if (numer_mapy == 2) {
+			if (rodzaj_npc == 5) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Kto ty jestes,czego chcesz");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 3) {
+			if (rodzaj_npc == 0) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "*pijacka czkawka*");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 2) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "maja tutaj dobre piwo *czka*");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 3) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "nie lubie tych pijakow");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 4) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "przytul mnie");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 10) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "ha ha ha odwal sie...");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 11) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "spadaj!");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 14) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jezeli masz pieniadze mozesz cos zamowic");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 30) {
+			if (rodzaj_npc == 15) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "odejdz, niegodny");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 32) {
+			if (rodzaj_npc == 8) {
+				if (czas < 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jestem w pracy nie przeszkadzaj");
+				}
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
 	}
 	if (*zad == 4) {
 		if (numer_mapy == 0) {
+			if (rodzaj_npc == 0) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "dzien dobry, piekny mamy dzis dzien");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 2) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "witaj");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 3) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jestes calkiem przystojnym misiem");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 4) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "dzien dobry");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
 			if (rodzaj_npc == 6) {
 				if (*nr_odp == 0 && czas < 4) {
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jesli chcesz przejsc przez brame");
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "przycisnij r obok niej ");
 				}
 				if (*nr_odp == 0 && czas > 4) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 12) {
+				if (czas < 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Warzywa! Warzywa!");
+				}
+				if (czas > 3 && czas < 6) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "prosze obejrzyj je");
+				}
+				if (czas > 6) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 13) {
+				if (czas < 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Ryby! swieze ryby");
+				}
+				if (czas > 3 && czas < 6) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "najlepsze ryby w miescie");
+				}
+				if (czas > 6) {
 					*rozmowa = 0;
 				}
 			}
@@ -336,15 +638,139 @@ void dialogi(wlasciwosci_pola_t **dane, ALLEGRO_FONT *czcionka, int rodzaj_npc, 
 				}
 			}
 		}
+		if (numer_mapy == 2) {
+			if (rodzaj_npc == 5) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Kto ty jestes,czego chcesz");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 3) {
+			if (rodzaj_npc == 0) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "*pijacka czkawka*");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 2) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "maja tutaj dobre piwo *czka*");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 3) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "nie lubie tych pijakow");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 4) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "przytul mnie");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 10) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "ha ha ha odwal sie...");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 11) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "spadaj!");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 14) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jezeli masz pieniadze mozesz cos zamowic");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 30) {
+			if (rodzaj_npc == 15) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "odejdz, niegodny");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 32) {
+			if (rodzaj_npc == 8) {
+				if (czas < 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jestem w pracy nie przeszkadzaj");
+				}
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
 	}
 	if (*zad == 5) {
 		if (numer_mapy == 0) {
+			if (rodzaj_npc == 0) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "dzien dobry, piekny mamy dzis dzien");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 2) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "witaj");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 3) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jestes calkiem przystojnym misiem");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 4) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "dzien dobry");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
 			if (rodzaj_npc == 6) {
 				if (*nr_odp == 0 && czas < 4) {
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jesli chcesz przejsc przez brame");
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "przycisnij r obok niej ");
 				}
 				if (*nr_odp == 0 && czas > 4) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 12) {
+				if (czas < 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Warzywa! Warzywa!");
+				}
+				if (czas > 3 && czas < 6) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "prosze obejrzyj je");
+				}
+				if (czas > 6) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 13) {
+				if (czas < 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Ryby! swieze ryby");
+				}
+				if (czas > 3 && czas < 6) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "najlepsze ryby w miescie");
+				}
+				if (czas > 6) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 1) {
+			if (rodzaj_npc == 1) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jestes calkiem milym i pomocnym misiem");
+				if (czas > 3) {
 					*rozmowa = 0;
 				}
 			}
@@ -381,15 +807,131 @@ void dialogi(wlasciwosci_pola_t **dane, ALLEGRO_FONT *czcionka, int rodzaj_npc, 
 				}
 			}
 		}
+		if (numer_mapy == 3) {
+			if (rodzaj_npc == 0) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "*pijacka czkawka*");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 2) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "maja tutaj dobre piwo *czka*");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 3) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "nie lubie tych pijakow");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 4) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "przytul mnie");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 10) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "ha ha ha odwal sie...");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 11) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "spadaj!");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 14) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jezeli masz pieniadze mozesz cos zamowic");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 30) {
+			if (rodzaj_npc == 15) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "odejdz, niegodny");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 32) {
+			if (rodzaj_npc == 8) {
+				if (czas < 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jestem w pracy nie przeszkadzaj");
+				}
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
 	}
 	if (*zad == 6) {
 		if (numer_mapy == 0) {
+			if (rodzaj_npc == 0) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "dzien dobry, piekny mamy dzis dzien");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 2) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "witaj");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 3) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jestes calkiem przystojnym misiem");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 4) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "dzien dobry");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
 			if (rodzaj_npc == 6) {
 				if (*nr_odp == 0 && czas < 4) {
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jesli chcesz przejsc przez brame");
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "przycisnij r obok niej ");
 				}
 				if (*nr_odp == 0 && czas > 4) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 12) {
+				if (czas < 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Warzywa! Warzywa!");
+				}
+				if (czas > 3 && czas < 6) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "prosze obejrzyj je");
+				}
+				if (czas > 6) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 13) {
+				if (czas < 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Ryby! swieze ryby");
+				}
+				if (czas > 3 && czas < 6) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "najlepsze ryby w miescie");
+				}
+				if (czas > 6) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 1) {
+			if (rodzaj_npc == 1) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jestes calkiem milym i pomocnym misiem");
+				if (czas > 3) {
 					*rozmowa = 0;
 				}
 			}
@@ -437,9 +979,95 @@ void dialogi(wlasciwosci_pola_t **dane, ALLEGRO_FONT *czcionka, int rodzaj_npc, 
 				}
 			}
 		}
+		if (numer_mapy == 3) {
+			if (rodzaj_npc == 0) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "*pijacka czkawka*");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 2) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "maja tutaj dobre piwo *czka*");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 3) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "nie lubie tych pijakow");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 4) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "przytul mnie");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 10) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "ha ha ha odwal sie...");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 11) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "spadaj!");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 14) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jezeli masz pieniadze mozesz cos zamowic");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 30) {
+			if (rodzaj_npc == 15) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "odejdz, niegodny");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 32) {
+			if (rodzaj_npc == 8) {
+				if (czas < 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jestem w pracy nie przeszkadzaj");
+				}
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
 	}
 	if (*zad == 7) {
 		if (numer_mapy == 0) {
+			if (rodzaj_npc == 0) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "dzien dobry, piekny mamy dzis dzien");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 2) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "witaj");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 3) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jestes calkiem przystojnym misiem");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 4) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "dzien dobry");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
 			if (rodzaj_npc == 6) {
 				if (*nr_odp == 0 && czas < 4) {
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jesli chcesz przejsc przez brame");
@@ -449,8 +1077,82 @@ void dialogi(wlasciwosci_pola_t **dane, ALLEGRO_FONT *czcionka, int rodzaj_npc, 
 					*rozmowa = 0;
 				}
 			}
+			if (rodzaj_npc == 12) {
+				if (czas < 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Warzywa! Warzywa!");
+				}
+				if (czas > 3 && czas < 6) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "prosze obejrzyj je");
+				}
+				if (czas > 6) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 13) {
+				if (czas < 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Ryby! swieze ryby");
+				}
+				if (czas > 3 && czas < 6) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "najlepsze ryby w miescie");
+				}
+				if (czas > 6) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 1) {
+			if (rodzaj_npc == 1) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jestes calkiem milym i pomocnym misiem");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 2) {
+			if (rodzaj_npc == 5) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "dzien dobry, jak leci");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
 		}
 		if (numer_mapy == 3) {
+			if (rodzaj_npc == 0) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "*pijacka czkawka*");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 2) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "maja tutaj dobre piwo *czka*");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 3) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "nie lubie tych pijakow");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 4) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "przytul mnie");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 10) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "ha ha ha odwal sie...");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 11) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "spadaj!");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
 			if (rodzaj_npc == 14) {
 				if (*nr_odp == 0 && czas < 5) {
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "witaj, potrzebuje meznego misia ktory nie");
@@ -482,15 +1184,10 @@ void dialogi(wlasciwosci_pola_t **dane, ALLEGRO_FONT *czcionka, int rodzaj_npc, 
 				}
 			}
 		}
-	}
-	if (*zad == 8) {
-		if (numer_mapy == 0) {
-			if (rodzaj_npc == 6) {
-				if (*nr_odp == 0 && czas < 4) {
-					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jesli chcesz przejsc przez brame");
-					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "przycisnij r obok niej ");
-				}
-				if (*nr_odp == 0 && czas > 4) {
+		if (numer_mapy == 30) {
+			if (rodzaj_npc == 15) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "odejdz, niegodny");
+				if (czas > 3) {
 					*rozmowa = 0;
 				}
 			}
@@ -500,12 +1197,87 @@ void dialogi(wlasciwosci_pola_t **dane, ALLEGRO_FONT *czcionka, int rodzaj_npc, 
 				if (czas < 3) {
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jestem w pracy nie przeszkadzaj");
 				}
-				if (czas > 0) {
+				if (czas > 3) {
 					*rozmowa = 0;
 				}
 			}
 		}
-		if (numer_mapy == 3){
+	}
+	if (*zad == 8) {
+		if (numer_mapy == 0) {
+			if (rodzaj_npc == 0) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "dzien dobry, piekny mamy dzis dzien");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 2) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "witaj");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 3) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jestes calkiem przystojnym misiem");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 4) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "dzien dobry");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 6) {
+				if (*nr_odp == 0 && czas < 4) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jesli chcesz przejsc przez brame");
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "przycisnij r obok niej ");
+				}
+				if (*nr_odp == 0 && czas > 4) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 12) {
+				if (czas < 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Warzywa! Warzywa!");
+				}
+				if (czas > 3 && czas < 6) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "prosze obejrzyj je");
+				}
+				if (czas > 6) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 13) {
+				if (czas < 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Ryby! swieze ryby");
+				}
+				if (czas > 3 && czas < 6) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "najlepsze ryby w miescie");
+				}
+				if (czas > 6) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 1) {
+			if (rodzaj_npc == 1) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jestes calkiem milym i pomocnym misiem");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 2) {
+			if (rodzaj_npc == 5) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "dzien dobry, jak leci");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 3) {
 			if (rodzaj_npc == 14) {
 				if (*nr_odp == 0 && czas < 3) {
 					*wybor = false;
@@ -518,7 +1290,7 @@ void dialogi(wlasciwosci_pola_t **dane, ALLEGRO_FONT *czcionka, int rodzaj_npc, 
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "nie");
 				}
 				if (*nr_odp == 1 && czas < 5) {
-					if (!sprawdzenie_czy_sa_przeciwnicy_na_innej_mapie("tmp/mapy/miastotmp.leafe",1)) {
+					if (!sprawdzenie_czy_sa_przeciwnicy_na_innej_mapie("tmp/mapy/miastotmp.leafe", 1)) {
 						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, " dowiodles swojej wartosci, teraz ");
 						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "mozesz otrzymac prawdziwe zadanie. ");
 						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 620, 0, "Pewien kupiec ma wobec mnie dlugi, ");
@@ -552,9 +1324,136 @@ void dialogi(wlasciwosci_pola_t **dane, ALLEGRO_FONT *czcionka, int rodzaj_npc, 
 				}
 			}
 		}
+		if (numer_mapy == 30) {
+			if (rodzaj_npc == 15) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "odejdz, niegodny");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 32) {
+			if (rodzaj_npc == 8) {
+				if (czas < 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jestem w pracy nie przeszkadzaj");
+				}
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
 	}
 	if (*zad == 9) {
+		if (numer_mapy == 0) {
+			if (rodzaj_npc == 0) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "dzien dobry, piekny mamy dzis dzien");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 2) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "witaj");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 3) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jestes calkiem przystojnym misiem");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 4) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "dzien dobry");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 6) {
+				if (*nr_odp == 0 && czas < 4) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jesli chcesz przejsc przez brame");
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "przycisnij r obok niej ");
+				}
+				if (*nr_odp == 0 && czas > 4) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 12) {
+				if (czas < 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Warzywa! Warzywa!");
+				}
+				if (czas > 3 && czas < 6) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "prosze obejrzyj je");
+				}
+				if (czas > 6) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 13) {
+				if (czas < 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Ryby! swieze ryby");
+				}
+				if (czas > 3 && czas < 6) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "najlepsze ryby w miescie");
+				}
+				if (czas > 6) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 1) {
+			if (rodzaj_npc == 1) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jestes calkiem milym i pomocnym misiem");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 2) {
+			if (rodzaj_npc == 5) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "dzien dobry, jak leci");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
 		if (numer_mapy == 3) {
+			if (rodzaj_npc == 0) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "*pijacka czkawka*");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 2) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "maja tutaj dobre piwo *czka*");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 3) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "nie lubie tych pijakow");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 4) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "przytul mnie");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 10) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "ha ha ha odwal sie...");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 11) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "spadaj!");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
 			if (rodzaj_npc == 14) {
 				if (*nr_odp == 0 && czas < 3) {
 					*wybor = false;
@@ -596,8 +1495,143 @@ void dialogi(wlasciwosci_pola_t **dane, ALLEGRO_FONT *czcionka, int rodzaj_npc, 
 				}
 			}
 		}
+		if (numer_mapy == 30) {
+			if (rodzaj_npc == 15) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "odejdz, niegodny");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 32) {
+			if (rodzaj_npc == 8) {
+				if (czas < 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jestem w pracy nie przeszkadzaj");
+				}
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
 	}
 	if (*zad == 10) {
+		if (numer_mapy == 0) {
+			if (rodzaj_npc == 0) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "dzien dobry, piekny mamy dzis dzien");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 2) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "witaj");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 3) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jestes calkiem przystojnym misiem");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 4) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "dzien dobry");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 6) {
+				if (*nr_odp == 0 && czas < 4) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jesli chcesz przejsc przez brame");
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "przycisnij r obok niej ");
+				}
+				if (*nr_odp == 0 && czas > 4) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 12) {
+				if (czas < 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Warzywa! Warzywa!");
+				}
+				if (czas > 3 && czas < 6) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "prosze obejrzyj je");
+				}
+				if (czas > 6) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 13) {
+				if (czas < 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Ryby! swieze ryby");
+				}
+				if (czas > 3 && czas < 6) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "najlepsze ryby w miescie");
+				}
+				if (czas > 6) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 1) {
+			if (rodzaj_npc == 1) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jestes calkiem milym i pomocnym misiem");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 2) {
+			if (rodzaj_npc == 5) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "dzien dobry, jak leci");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 3) {
+			if (rodzaj_npc == 0) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "*pijacka czkawka*");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 2) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "maja tutaj dobre piwo *czka*");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 3) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "nie lubie tych pijakow");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 4) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "przytul mnie");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 10) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "ha ha ha odwal sie...");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 11) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "spadaj!");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 14) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "witaj mezny misiu");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
 		if (numer_mapy == 30) {
 			if (rodzaj_npc == 15) {
 				if (*nr_odp == 0 && czas < 3) {
@@ -630,25 +1664,164 @@ void dialogi(wlasciwosci_pola_t **dane, ALLEGRO_FONT *czcionka, int rodzaj_npc, 
 				}
 			}
 		}
-	}
-	if (*zad == 11) {
-		if (rodzaj_npc == 15) {
-			if (*nr_odp == 0 && czas < 3) {
-				if (sprawdzenie_czy_przedmiot_jest_w_ekwipunku(przedmioty_w_ekwipunku, przedmioty_w_ekwipunku, 9, 4)) {
-					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "brawo");
+		if (numer_mapy == 32) {
+			if (rodzaj_npc == 8) {
+				if (czas < 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jestem w pracy nie przeszkadzaj");
 				}
-				else
-				{
-					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "nie masz jeszcze wiadra");
-				}
-			}
-			if (*nr_odp == 0 && czas > 3) {
-				if (sprawdzenie_czy_przedmiot_jest_w_ekwipunku(przedmioty_w_ekwipunku,przedmioty_w_ekwipunku, 9, 4)) {
-					*zad = 12;
+				if (czas > 3) {
 					*rozmowa = 0;
 				}
-				else
-				{
+			}
+		}
+	}
+	if (*zad == 11) {
+		if (numer_mapy == 0) {
+			if (rodzaj_npc == 0) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "dzien dobry, piekny mamy dzis dzien");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 2) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "witaj");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 3) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jestes calkiem przystojnym misiem");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 4) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "dzien dobry");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 6) {
+				if (*nr_odp == 0 && czas < 4) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jesli chcesz przejsc przez brame");
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "przycisnij r obok niej ");
+				}
+				if (*nr_odp == 0 && czas > 4) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 12) {
+				if (czas < 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Warzywa! Warzywa!");
+				}
+				if (czas > 3 && czas < 6) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "prosze obejrzyj je");
+				}
+				if (czas > 6) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 13) {
+				if (czas < 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Ryby! swieze ryby");
+				}
+				if (czas > 3 && czas < 6) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "najlepsze ryby w miescie");
+				}
+				if (czas > 6) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 1) {
+			if (rodzaj_npc == 1) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jestes calkiem milym i pomocnym misiem");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 2) {
+			if (rodzaj_npc == 5) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "dzien dobry, jak leci");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 3) {
+			if (rodzaj_npc == 0) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "*pijacka czkawka*");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 2) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "maja tutaj dobre piwo *czka*");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "nie lubie tych pijakow");
+					if (czas > 3) {
+						*rozmowa = 0;
+					}
+			}
+			if (rodzaj_npc == 4) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "przytul mnie");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 10) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "ha ha ha odwal sie...");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 11) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "spadaj!");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+			if (rodzaj_npc == 14) {
+				al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "witaj mezny misiu");
+				if (czas > 3) {
+					*rozmowa = 0;
+				}
+			}
+		}
+		if (numer_mapy == 30) {
+			if (rodzaj_npc == 15) {
+				if (*nr_odp == 0 && czas < 3) {
+					if (sprawdzenie_czy_przedmiot_jest_w_ekwipunku(przedmioty_w_ekwipunku, przedmioty_w_ekwipunku, 9, 4)) {
+						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "brawo");
+					}
+					else
+					{
+						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "nie masz jeszcze wiadra");
+					}
+				}
+				if (*nr_odp == 0 && czas > 3) {
+					if (sprawdzenie_czy_przedmiot_jest_w_ekwipunku(przedmioty_w_ekwipunku, przedmioty_w_ekwipunku, 9, 4)) {
+						*zad = 12;
+						*rozmowa = 0;
+					}
+					else
+					{
+						*rozmowa = 0;
+					}
+				}
+			}
+		}
+		if (numer_mapy == 32) {
+			if (rodzaj_npc == 8) {
+				if (czas < 3) {
+					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "jestem w pracy nie przeszkadzaj");
+				}
+				if (czas > 3) {
 					*rozmowa = 0;
 				}
 			}
