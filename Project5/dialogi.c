@@ -285,7 +285,7 @@ void dialogi(wlasciwosci_pola_t **dane, ALLEGRO_FONT *czcionka, int rodzaj_npc, 
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Tak");
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "Nie");
 				}
-				if (czas < 5 && *nr_odp == 1) {
+				if (czas < 8 && *nr_odp == 1) {
 					if (sprawdzenie_czy_przedmiot_jest_w_ekwipunku(przedmioty_zalozone, przedmioty_w_ekwipunku, 1, 3)) {
 						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "dziekuje,skoro obiecalem ci pomoc wiec prosze,");
 						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "oto twoja moneta i miod. Zeby przetrwac w naszym");
@@ -449,7 +449,7 @@ void dialogi(wlasciwosci_pola_t **dane, ALLEGRO_FONT *czcionka, int rodzaj_npc, 
 		}
 		if (numer_mapy == 1) {
 			if (rodzaj_npc == 1) {
-				if (*nr_odp == 0 && czas < 8) {
+				if (*nr_odp == 0 && czas < 9) {
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "wez prosze ten widelec zaatakuj sliwki lezace na");
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "stolemozesz sie odwracac przytrzymujac ctl i");
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 620, 0, "klikajac strzalke w odpowiednim kierunku.");
@@ -605,7 +605,7 @@ void dialogi(wlasciwosci_pola_t **dane, ALLEGRO_FONT *czcionka, int rodzaj_npc, 
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "tak");
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "nie");
 				}
-				if (*nr_odp == 1 && czas < 5) {
+				if (*nr_odp == 1 && czas < 8) {
 					if (!sprawdzenie_czy_sa_przeciwnicy_na_aktualnej_mapie(dane, 15, 15, 4)) {
 						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "dobrze, oto twoja nagroda.");
 						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "mojemu koledze albrehtowi przydala");
@@ -777,7 +777,7 @@ void dialogi(wlasciwosci_pola_t **dane, ALLEGRO_FONT *czcionka, int rodzaj_npc, 
 		}
 		if (numer_mapy == 2) {
 			if (rodzaj_npc == 5) {
-				if (*nr_odp == 0 && czas<5) {
+				if (*nr_odp == 0 && czas<9) {
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Witaj,dobrze ze juz jestes. mam");
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "straszny problem ze szczurami w piwnicy");
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 620, 0, "czy moglbys je w jakis sposob zlikwidowac");
@@ -948,7 +948,7 @@ void dialogi(wlasciwosci_pola_t **dane, ALLEGRO_FONT *czcionka, int rodzaj_npc, 
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "tak");
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "nie");
 				}
-				if (*nr_odp == 1&& czas<3) {
+				if (*nr_odp == 1&& czas<7) {
 					if (!sprawdzenie_czy_sa_przeciwnicy_na_innej_mapie("tmp/mapy/piwnica_szczurytmp.leafe", 2)){
 						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "dziekuje teraz moge juz spac bezpiecznie.");
 						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "wez ten noz w nagrode. slyszalem ze karczmarz");
@@ -1154,7 +1154,7 @@ void dialogi(wlasciwosci_pola_t **dane, ALLEGRO_FONT *czcionka, int rodzaj_npc, 
 				}
 			}
 			if (rodzaj_npc == 14) {
-				if (*nr_odp == 0 && czas < 5) {
+				if (*nr_odp == 0 && czas < 7) {
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "witaj, potrzebuje meznego misia ktory nie");
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "boi sie przygod, jesli chcesz sie podjac");
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 620, 0, "mam dla ciebie specjalne wchodzisz w to");
@@ -1165,7 +1165,7 @@ void dialogi(wlasciwosci_pola_t **dane, ALLEGRO_FONT *czcionka, int rodzaj_npc, 
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "pewnie");
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "nie takiego misia szukasz");
 				}
-				if (*nr_odp == 1 && czas < 3) {
+				if (*nr_odp == 1 && czas < 6) {
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "to super ze sie zgadzasz ale najpierw musze");
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "cie sprawdzic pokonaj 5 wilkow na polnoc");
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 620, 0, "od miasta");
@@ -1289,7 +1289,7 @@ void dialogi(wlasciwosci_pola_t **dane, ALLEGRO_FONT *czcionka, int rodzaj_npc, 
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "tak");
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "nie");
 				}
-				if (*nr_odp == 1 && czas < 5) {
+				if (*nr_odp == 1 && czas < 10) {
 					if (!sprawdzenie_czy_sa_przeciwnicy_na_innej_mapie("tmp/mapy/miastotmp.leafe", 1)) {
 						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, " dowiodles swojej wartosci, teraz ");
 						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "mozesz otrzymac prawdziwe zadanie. ");
@@ -1465,7 +1465,7 @@ void dialogi(wlasciwosci_pola_t **dane, ALLEGRO_FONT *czcionka, int rodzaj_npc, 
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "tak");
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "nie");
 				}
-				if (*nr_odp == 1 && czas < 5) {
+				if (*nr_odp == 1 && czas < 7) {
 					if (!sprawdzenie_czy_sa_przeciwnicy_na_innej_mapie("tmp/mapy/miastotmp.leafe", 5)) {
 						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Ejjj, dobry jestes. Przepraszam, ze w Ciebie");
 						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "watpilem. Jesli chcesz mozesz wstapic");
@@ -1644,7 +1644,7 @@ void dialogi(wlasciwosci_pola_t **dane, ALLEGRO_FONT *czcionka, int rodzaj_npc, 
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "tak");
 					al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "nie");
 				}
-				if (*nr_odp == 1 && czas < 5) {
+				if (*nr_odp == 1 && czas < 8) {
 						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 560, 0, "Moge nauczyc Cie rzucac kule ognia, ale...");
 						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 590, 0, "chwia... nie mam juz wiecej lawy!");
 						al_draw_text(czcionka, al_map_rgb(0, 0, 0), 200, 620, 0, "udaj sie do jaskini na wzgorzu za miastem ");
@@ -2052,7 +2052,7 @@ void wybor_z_menu(int pole_wybrane, bool *zakonczenie,bool *gra,char*** nazwy_pl
 		do{
 			al_draw_bitmap(ekran_startu, 0, 0, 0);
 			al_flip_display();
-		} while ((((float)clock() - czas) / CLOCKS_PER_SEC) < 5);
+		} while ((((float)clock() - czas) / CLOCKS_PER_SEC) < 10);
 		zapis_wszystkich_plikow(nazwy_plikow,ilosc_plikow,1,3);
 		*gra = true;
 		*jest_gra = true;
